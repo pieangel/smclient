@@ -203,6 +203,7 @@
     <ClInclude Include="SmClient.h" />
     <ClInclude Include="SmClientDoc.h" />
     <ClInclude Include="SmClientView.h" />
+    <ClInclude Include="SmErrorHandler.h" />
     <ClInclude Include="SmNetClient.h" />
     <ClInclude Include="SmNetDefine.h" />
     <ClInclude Include="SmSession.h" />
@@ -226,6 +227,7 @@
     <ClCompile Include="SmClient.cpp" />
     <ClCompile Include="SmClientDoc.cpp" />
     <ClCompile Include="SmClientView.cpp" />
+    <ClCompile Include="SmErrorHandler.cpp" />
     <ClCompile Include="SmNetClient.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>

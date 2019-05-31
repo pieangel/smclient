@@ -11,6 +11,8 @@ public:
 	SmSession* Session() const { return _Session; }
 	void Session(SmSession* val) { _Session = val; }
 	void Login();
+	void RegisterProduct(std::string symCode);
+	void OnMessage(std::string message);
 private:
 	SmSession* _Session = nullptr;
 };

@@ -119,7 +119,8 @@ void SmSession::on_read(beast::error_code ec, std::size_t bytes_transferred)
 
 	if (ec)
 		return fail(ec, "read");
-
+	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
+	sessMgr->OnMessage(beast::buffers_to_string(buffer_.data()));
 	buffer_.consume(buffer_.size());
 
 	do_read();

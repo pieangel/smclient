@@ -9,6 +9,7 @@
 #include "MainFrm.h"
 #include "SmNetClient.h"
 #include "SmSessionManager.h"
+#include "SmErrorHandler.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -34,6 +35,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWndEx)
 	ON_COMMAND(ID_SERVER_LOGIN, &CMainFrame::OnServerLogin)
 	ON_WM_CLOSE()
 	ON_WM_SHOWWINDOW()
+	ON_COMMAND(ID_SERVER_REGISTERPRODUCT, &CMainFrame::OnServerRegisterproduct)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -461,6 +463,7 @@ void CMainFrame::OnClose()
 {
 	// TODO: Add your message handler code here and/or call default
 	SmSessionManager::DestroyInstance();
+	SmErrorHandler::DestroyInstance();
 	CMDIFrameWndEx::OnClose();
 }
 
@@ -470,4 +473,11 @@ void CMainFrame::OnShowWindow(BOOL bShow, UINT nStatus)
 	CMDIFrameWndEx::OnShowWindow(bShow, nStatus);
 
 	// TODO: Add your message handler code here
+}
+
+
+void CMainFrame::OnServerRegisterproduct()
+{
+	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
+	sessMgr->RegisterProduct("CLN19");
 }

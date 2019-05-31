@@ -3,6 +3,7 @@
 #include <boost/smart_ptr/make_shared.hpp>
 #include "SmSession.h"
 #include "Json/json.hpp"
+#include "SmErrorHandler.h"
 using namespace nlohmann;
 SmSessionManager::SmSessionManager()
 {
@@ -31,8 +32,27 @@ void SmSessionManager::Login()
 		return;
 
 	json loginInfo;
-	loginInfo["reg_id"] = 1;
+	loginInfo["req_id"] = 1;
 	loginInfo["user_info"]["id"] = _Session->Id();
 	loginInfo["user_info"]["pwd"] = _Session->Pwd();
 	Send(loginInfo.dump(4));
+}
+
+
+
+void SmSessionManager::RegisterProduct(std::string symCode)
+{
+	if (!_Session)
+		return;
+	json reg_symbol;
+	reg_symbol["req_id"] = 2;
+	reg_symbol["user_id"] = _Session->Id();
+	reg_symbol["symbol_code"] = symCode;
+	Send(reg_symbol.dump(4));
+}
+
+void SmSessionManager::OnMessage(std::string message)
+{
+	SmErrorHandler* erHdlr = SmErrorHandler::GetInstance();
+	erHdlr->ShowMessage(message);
 }
