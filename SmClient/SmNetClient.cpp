@@ -7,7 +7,6 @@ void SmNetClient::ThreadMain()
 
 void SmNetClient::Start()
 {
-	/*
 	auto const host = "192.168.0.38";
 	auto const port = "9991";
 	auto const id = "angelpie";
@@ -22,6 +21,5 @@ void SmNetClient::Start()
 	// Run the I/O service. The call will return when
 	// the socket is closed.
 	ioc.run();
-	*/
 }
 

@@ -7,7 +7,7 @@
 #include "ClassView.h"
 #include "OutputWnd.h"
 #include "PropertiesWnd.h"
-
+class SmNetClient;
 class CMainFrame : public CMDIFrameWndEx
 {
 	DECLARE_DYNAMIC(CMainFrame)
@@ -56,6 +56,13 @@ protected:
 
 	BOOL CreateDockingWindows();
 	void SetDockingWindowIcons(BOOL bHiColorIcons);
+public:
+	afx_msg void OnServerConnect();
+	afx_msg void OnServerLogin();
+	afx_msg void OnClose();
+	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
+private:
+	SmNetClient* _Client = nullptr;
 };
 
 

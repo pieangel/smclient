@@ -7,6 +7,8 @@
 #include "SmClient.h"
 
 #include "MainFrm.h"
+#include "SmNetClient.h"
+#include "SmSessionManager.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -28,6 +30,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWndEx)
 	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnApplicationLook)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnUpdateApplicationLook)
 	ON_WM_SETTINGCHANGE()
+	ON_COMMAND(ID_SERVER_CONNECT, &CMainFrame::OnServerConnect)
+	ON_COMMAND(ID_SERVER_LOGIN, &CMainFrame::OnServerLogin)
+	ON_WM_CLOSE()
+	ON_WM_SHOWWINDOW()
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -48,6 +54,10 @@ CMainFrame::CMainFrame() noexcept
 
 CMainFrame::~CMainFrame()
 {
+	if (_Client) {
+		delete _Client;
+		_Client = nullptr;
+	}
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -427,4 +437,37 @@ void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 {
 	CMDIFrameWndEx::OnSettingChange(uFlags, lpszSection);
 	m_wndOutput.UpdateFonts();
+}
+
+
+void CMainFrame::OnServerConnect()
+{
+	// TODO: Add your command handler code here
+	if (!_Client) {
+		_Client = new SmNetClient();
+	}
+}
+
+
+void CMainFrame::OnServerLogin()
+{
+	// TODO: Add your command handler code here
+	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
+	sessMgr->Login();
+}
+
+
+void CMainFrame::OnClose()
+{
+	// TODO: Add your message handler code here and/or call default
+	SmSessionManager::DestroyInstance();
+	CMDIFrameWndEx::OnClose();
+}
+
+
+void CMainFrame::OnShowWindow(BOOL bShow, UINT nStatus)
+{
+	CMDIFrameWndEx::OnShowWindow(bShow, nStatus);
+
+	// TODO: Add your message handler code here
 }

@@ -193,6 +193,8 @@
     <ClInclude Include="ClassView.h" />
     <ClInclude Include="FileView.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="Global\TemplateSingleton.h" />
+    <ClInclude Include="Json\json.hpp" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="OutputWnd.h" />
     <ClInclude Include="pch.h" />
@@ -202,7 +204,9 @@
     <ClInclude Include="SmClientDoc.h" />
     <ClInclude Include="SmClientView.h" />
     <ClInclude Include="SmNetClient.h" />
+    <ClInclude Include="SmNetDefine.h" />
     <ClInclude Include="SmSession.h" />
+    <ClInclude Include="SmSessionManager.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="ViewTree.h" />
   </ItemGroup>
@@ -226,6 +230,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SmSession.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="SmSessionManager.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ViewTree.cpp" />
