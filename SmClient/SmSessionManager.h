@@ -1,6 +1,7 @@
 #pragma once
 #include "Global/TemplateSingleton.h"
 #include <string>
+#include <set>
 class SmSession;
 class SmSessionManager : public TemplateSingleton<SmSessionManager>
 {
@@ -13,7 +14,10 @@ public:
 	void Login();
 	void RegisterProduct(std::string symCode);
 	void OnMessage(std::string message);
+	void Close();
 private:
 	SmSession* _Session = nullptr;
+	std::set<std::string> _RegSymbolSet;
+	void UnregisterAllSymbol();
 };
 

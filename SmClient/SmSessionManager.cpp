@@ -48,6 +48,7 @@ void SmSessionManager::RegisterProduct(std::string symCode)
 	reg_symbol["req_id"] = 2;
 	reg_symbol["user_id"] = _Session->Id();
 	reg_symbol["symbol_code"] = symCode;
+	_RegSymbolSet.insert(symCode);
 	Send(reg_symbol.dump(4));
 }
 
@@ -55,4 +56,18 @@ void SmSessionManager::OnMessage(std::string message)
 {
 	SmErrorHandler* erHdlr = SmErrorHandler::GetInstance();
 	erHdlr->ShowMessage(message);
+}
+
+void SmSessionManager::Close()
+{
+	if (_Session) {
+		_Session->close();
+	}
+}
+
+void SmSessionManager::UnregisterAllSymbol()
+{
+	for (auto it = _RegSymbolSet.begin(); it != _RegSymbolSet.end(); ++it) {
+
+	}
 }

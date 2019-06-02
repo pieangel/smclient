@@ -65,6 +65,7 @@ private:
 	SmNetClient* _Client = nullptr;
 public:
 	afx_msg void OnServerRegisterproduct();
+	afx_msg void OnServerClose();
 };
 
 

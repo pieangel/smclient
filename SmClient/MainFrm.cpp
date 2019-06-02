@@ -36,6 +36,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWndEx)
 	ON_WM_CLOSE()
 	ON_WM_SHOWWINDOW()
 	ON_COMMAND(ID_SERVER_REGISTERPRODUCT, &CMainFrame::OnServerRegisterproduct)
+	ON_COMMAND(ID_SERVER_CLOSE, &CMainFrame::OnServerClose)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -480,4 +481,10 @@ void CMainFrame::OnServerRegisterproduct()
 {
 	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
 	sessMgr->RegisterProduct("CLN19");
+}
+
+
+void CMainFrame::OnServerClose()
+{
+	// TODO: Add your command handler code here
 }
