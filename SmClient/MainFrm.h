@@ -66,6 +66,7 @@ private:
 public:
 	afx_msg void OnServerRegisterproduct();
 	afx_msg void OnServerClose();
+	afx_msg void OnServerLogout();
 };
 
 

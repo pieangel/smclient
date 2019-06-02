@@ -67,7 +67,14 @@ void SmSessionManager::Close()
 
 void SmSessionManager::UnregisterAllSymbol()
 {
+	if (!_Session)
+		return;
 	for (auto it = _RegSymbolSet.begin(); it != _RegSymbolSet.end(); ++it) {
-
+		std::string symCode = *it;
+		json reg_symbol;
+		reg_symbol["req_id"] = 2;
+		reg_symbol["user_id"] = _Session->Id();
+		reg_symbol["symbol_code"] = symCode;
+		Send(reg_symbol.dump(4));
 	}
 }

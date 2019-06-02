@@ -37,6 +37,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWndEx)
 	ON_WM_SHOWWINDOW()
 	ON_COMMAND(ID_SERVER_REGISTERPRODUCT, &CMainFrame::OnServerRegisterproduct)
 	ON_COMMAND(ID_SERVER_CLOSE, &CMainFrame::OnServerClose)
+	ON_COMMAND(ID_SERVER_LOGOUT, &CMainFrame::OnServerLogout)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -485,6 +486,12 @@ void CMainFrame::OnServerRegisterproduct()
 
 
 void CMainFrame::OnServerClose()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CMainFrame::OnServerLogout()
 {
 	// TODO: Add your command handler code here
 }
