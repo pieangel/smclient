@@ -7,7 +7,8 @@ void SmNetClient::ThreadMain()
 
 void SmNetClient::Start()
 {
-	auto const host = "192.168.1.9";
+	auto const host = "192.168.0.38";
+	//auto const host = "angelpie.ddns.net";
 	auto const port = "9991";
 	auto const id = "angelpie";
 	auto const pwd = "orion1";

@@ -38,6 +38,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWndEx)
 	ON_COMMAND(ID_SERVER_REGISTERPRODUCT, &CMainFrame::OnServerRegisterproduct)
 	ON_COMMAND(ID_SERVER_CLOSE, &CMainFrame::OnServerClose)
 	ON_COMMAND(ID_SERVER_LOGOUT, &CMainFrame::OnServerLogout)
+	ON_COMMAND(ID_SERVER_GETCHARTDATA, &CMainFrame::OnServerGetchartdata)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -494,4 +495,11 @@ void CMainFrame::OnServerClose()
 void CMainFrame::OnServerLogout()
 {
 	// TODO: Add your command handler code here
+}
+
+
+void CMainFrame::OnServerGetchartdata()
+{
+	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
+	sessMgr->ReqestChartData("CLN19", 5, 1, 1500);
 }

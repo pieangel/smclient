@@ -4,6 +4,7 @@
 #include "SmSession.h"
 #include "Json/json.hpp"
 #include "SmErrorHandler.h"
+#include "SmServiceDefine.h"
 using namespace nlohmann;
 SmSessionManager::SmSessionManager()
 {
@@ -31,10 +32,15 @@ void SmSessionManager::Login()
 	if (!_Session)
 		return;
 
+	auto j3 = json::parse("{\"happy\": true, \"pi\": 3.141 }");
+
+	std::string re = j3.dump();
+
 	json loginInfo;
-	loginInfo["req_id"] = 1;
+	loginInfo["req_id"] = (int)SmProtocol::req_login;
 	loginInfo["user_info"]["id"] = _Session->Id();
 	loginInfo["user_info"]["pwd"] = _Session->Pwd();
+	std::string msg = loginInfo.dump(4);
 	Send(loginInfo.dump(4));
 }
 
@@ -45,10 +51,24 @@ void SmSessionManager::RegisterProduct(std::string symCode)
 	if (!_Session)
 		return;
 	json reg_symbol;
-	reg_symbol["req_id"] = 2;
+	reg_symbol["req_id"] = (int)SmProtocol::req_register_symbol;
 	reg_symbol["user_id"] = _Session->Id();
 	reg_symbol["symbol_code"] = symCode;
 	_RegSymbolSet.insert(symCode);
+	Send(reg_symbol.dump(4));
+}
+
+void SmSessionManager::ReqestChartData(std::string symCode, int chartType, int cycle, int count)
+{
+	if (!_Session)
+		return;
+	json reg_symbol;
+	reg_symbol["req_id"] = SmProtocol::req_chart_data;
+	reg_symbol["user_id"] = _Session->Id();
+	reg_symbol["symbol_code"] = symCode;
+	reg_symbol["chart_type"] = std::to_string(chartType);
+	reg_symbol["cycle"] = std::to_string(cycle);
+	reg_symbol["count"] = std::to_string(count);
 	Send(reg_symbol.dump(4));
 }
 

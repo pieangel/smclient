@@ -13,6 +13,7 @@ public:
 	void Session(SmSession* val) { _Session = val; }
 	void Login();
 	void RegisterProduct(std::string symCode);
+	void ReqestChartData(std::string symCode, int chartType, int cycle, int count);
 	void OnMessage(std::string message);
 	void Close();
 private:
