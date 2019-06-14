@@ -68,6 +68,8 @@ public:
 	afx_msg void OnServerClose();
 	afx_msg void OnServerLogout();
 	afx_msg void OnServerGetchartdata();
+	afx_msg void OnServerGetsisedata();
+	afx_msg void OnServerRegistercycledt();
 };
 
 

@@ -39,6 +39,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWndEx)
 	ON_COMMAND(ID_SERVER_CLOSE, &CMainFrame::OnServerClose)
 	ON_COMMAND(ID_SERVER_LOGOUT, &CMainFrame::OnServerLogout)
 	ON_COMMAND(ID_SERVER_GETCHARTDATA, &CMainFrame::OnServerGetchartdata)
+	ON_COMMAND(ID_SERVER_GETSISEDATA, &CMainFrame::OnServerGetsisedata)
+	ON_COMMAND(ID_SERVER_REGISTERCYCLEDT, &CMainFrame::OnServerRegistercycledt)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -501,5 +503,25 @@ void CMainFrame::OnServerLogout()
 void CMainFrame::OnServerGetchartdata()
 {
 	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
-	sessMgr->ReqestChartData("CLN19", 5, 1, 1500);
+	// HON19
+	//sessMgr->ReqestChartData("CLN19", 5, 1, 1500);
+	//sessMgr->ReqestChartData("HON19", 5, 1, 1500);
+	sessMgr->ReqestChartData("GEM19", 5, 1, 1500);
+}
+
+
+void CMainFrame::OnServerGetsisedata()
+{
+	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
+	sessMgr->RequestSiseData("CLN19");
+}
+
+
+void CMainFrame::OnServerRegistercycledt()
+{
+	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
+	// HON19
+	//sessMgr->ReqestChartData("CLN19", 5, 1, 1500);
+	//sessMgr->ReqestChartData("HON19", 5, 1, 1500);
+	sessMgr->RegisterCycleData("CLN19", 5, 1, 4);
 }

@@ -14,6 +14,8 @@ public:
 	void Login();
 	void RegisterProduct(std::string symCode);
 	void ReqestChartData(std::string symCode, int chartType, int cycle, int count);
+	void RegisterCycleData(std::string symCode, int chartType, int cycle, int count);
+	void RequestSiseData(std::string symCode);
 	void OnMessage(std::string message);
 	void Close();
 private:

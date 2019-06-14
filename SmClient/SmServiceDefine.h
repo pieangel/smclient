@@ -20,5 +20,7 @@ enum class SmProtocol {
 	res_order_accepted,
 	res_order_filled,
 	req_chart_data,
-	res_chart_data
+	res_chart_data,
+	req_sise_data,
+	res_sise_data
 };

@@ -72,6 +72,31 @@ void SmSessionManager::ReqestChartData(std::string symCode, int chartType, int c
 	Send(reg_symbol.dump(4));
 }
 
+void SmSessionManager::RegisterCycleData(std::string symCode, int chartType, int cycle, int count)
+{
+	if (!_Session)
+		return;
+	json reg_symbol;
+	reg_symbol["req_id"] = SmProtocol::req_register_symbol_cycle;
+	reg_symbol["user_id"] = _Session->Id();
+	reg_symbol["symbol_code"] = symCode;
+	reg_symbol["chart_type"] = std::to_string(chartType);
+	reg_symbol["cycle"] = std::to_string(cycle);
+	reg_symbol["count"] = std::to_string(4);
+	Send(reg_symbol.dump(4));
+}
+
+void SmSessionManager::RequestSiseData(std::string symCode)
+{
+	if (!_Session)
+		return;
+	json reg_symbol;
+	reg_symbol["req_id"] = SmProtocol::req_sise_data;
+	reg_symbol["user_id"] = _Session->Id();
+	reg_symbol["symbol_code"] = symCode;
+	Send(reg_symbol.dump(4));
+}
+
 void SmSessionManager::OnMessage(std::string message)
 {
 	SmErrorHandler* erHdlr = SmErrorHandler::GetInstance();
