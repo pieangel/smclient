@@ -10,6 +10,10 @@
 #include "SmNetClient.h"
 #include "SmSessionManager.h"
 #include "SmErrorHandler.h"
+#include "SmSymbolReader.h"
+#include "SmConfigManager.h"
+#include "Xml/pugixml.hpp"
+#include "SmHdClient.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -469,6 +473,9 @@ void CMainFrame::OnClose()
 	// TODO: Add your message handler code here and/or call default
 	SmSessionManager::DestroyInstance();
 	SmErrorHandler::DestroyInstance();
+	SmSymbolReader::DestroyInstance();
+	SmHdClient::DestroyInstance();
+	SmConfigManager::DestroyInstance();
 	CMDIFrameWndEx::OnClose();
 }
 
@@ -477,7 +484,27 @@ void CMainFrame::OnShowWindow(BOOL bShow, UINT nStatus)
 {
 	CMDIFrameWndEx::OnShowWindow(bShow, nStatus);
 
-	// TODO: Add your message handler code here
+	SmSymbolReader* symReader = SmSymbolReader::GetInstance();
+	SmConfigManager* configMgr = SmConfigManager::GetInstance();
+	std::string appPath = configMgr->GetApplicationPath();
+	std::string configPath = appPath;
+	configPath.append(_T("\\Config\\Config.xml"));
+	pugi::xml_document doc;
+	pugi::xml_parse_result result = doc.load_file(configPath.c_str());
+	pugi::xml_node app = doc.first_child();
+	pugi::xml_node login_info = doc.child("application").child("login_info");
+
+	std::string id = login_info.child("id").text().as_string();
+	std::string pwd = login_info.child("pwd").text().as_string();
+	std::string cert = login_info.child("cert").text().as_string();
+
+	SmHdClient* hdClient = SmHdClient::GetInstance();
+	int loginResult = hdClient->Login(id, pwd, cert);
+	if (loginResult < 0) {
+		AfxMessageBox(_T("Login Error!"));
+	}
+
+	hdClient->DownloadMasterFiles("futures");
 }
 
 
