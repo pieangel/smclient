@@ -525,3 +525,8 @@ void CMainFrame::OnServerRegistercycledt()
 	//sessMgr->ReqestChartData("HON19", 5, 1, 1500);
 	sessMgr->RegisterCycleData("CLN19", 5, 1, 4);
 }
+
+void CMainFrame::InitHdClient()
+{
+
+}

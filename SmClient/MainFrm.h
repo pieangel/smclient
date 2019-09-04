@@ -70,6 +70,9 @@ public:
 	afx_msg void OnServerGetchartdata();
 	afx_msg void OnServerGetsisedata();
 	afx_msg void OnServerRegistercycledt();
+
+private:
+	void InitHdClient();
 };
 
 
