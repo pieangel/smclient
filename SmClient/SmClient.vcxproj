@@ -92,9 +92,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_SILENCE_CXX17_UNCAUGHT_EXCEPTION_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>C:\Project\json-develop\json-develop\single_include;C:\Project\boost_1_70_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -193,31 +194,90 @@
   <ItemGroup>
     <ClInclude Include="ChildFrm.h" />
     <ClInclude Include="ClassView.h" />
+    <ClInclude Include="Database\influxdb.hpp" />
     <ClInclude Include="FileView.h" />
+    <ClInclude Include="Format\core.h" />
+    <ClInclude Include="Format\format-inl.h" />
+    <ClInclude Include="Format\format.h" />
+    <ClInclude Include="Format\ostream.h" />
+    <ClInclude Include="Format\posix.h" />
+    <ClInclude Include="Format\printf.h" />
+    <ClInclude Include="Format\ranges.h" />
+    <ClInclude Include="Format\time.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Global\TemplateSingleton.h" />
+    <ClInclude Include="HDCtrl\hdfcommagent.h" />
     <ClInclude Include="Json\json.hpp" />
+    <ClInclude Include="Log\loguru.hpp" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="OutputWnd.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PropertiesWnd.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="Scheduler\Cron.h" />
+    <ClInclude Include="Scheduler\ctpl.h" />
+    <ClInclude Include="Scheduler\ctpl_stl.h" />
+    <ClInclude Include="Scheduler\InterruptableSleep.h" />
+    <ClInclude Include="Scheduler\Scheduler.h" />
+    <ClInclude Include="SmCategory.h" />
+    <ClInclude Include="SmChartData.h" />
+    <ClInclude Include="SmChartDataManager.h" />
+    <ClInclude Include="SmChartDefine.h" />
     <ClInclude Include="SmClient.h" />
     <ClInclude Include="SmClientDoc.h" />
     <ClInclude Include="SmClientView.h" />
+    <ClInclude Include="SmConfigManager.h" />
     <ClInclude Include="SmErrorHandler.h" />
+    <ClInclude Include="SmHdClient.h" />
+    <ClInclude Include="SmHdCtrl.h" />
+    <ClInclude Include="SmHogaDefine.h" />
+    <ClInclude Include="SmMarket.h" />
+    <ClInclude Include="SmMarketManager.h" />
     <ClInclude Include="SmNetClient.h" />
     <ClInclude Include="SmNetDefine.h" />
+    <ClInclude Include="SmQuoteDefine.h" />
     <ClInclude Include="SmServiceDefine.h" />
     <ClInclude Include="SmSession.h" />
     <ClInclude Include="SmSessionManager.h" />
+    <ClInclude Include="SmSymbol.h" />
+    <ClInclude Include="SmSymbolManager.h" />
+    <ClInclude Include="SmSymbolReader.h" />
+    <ClInclude Include="SmTimeSeriesCollector.h" />
+    <ClInclude Include="SmTimeSeriesDBManager.h" />
+    <ClInclude Include="SmTimeSeriesServiceManager.h" />
+    <ClInclude Include="SmUtfUtil.h" />
+    <ClInclude Include="SmUtil.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Timer\cpptime.h" />
+    <ClInclude Include="Time\chrono_io.h" />
+    <ClInclude Include="Time\date.h" />
+    <ClInclude Include="Time\ios.h" />
+    <ClInclude Include="Time\islamic.h" />
+    <ClInclude Include="Time\iso_week.h" />
+    <ClInclude Include="Time\julian.h" />
+    <ClInclude Include="Time\ptz.h" />
+    <ClInclude Include="Time\tz.h" />
+    <ClInclude Include="Time\tz_private.h" />
+    <ClInclude Include="Util\VtStringUtil.h" />
     <ClInclude Include="ViewTree.h" />
+    <ClInclude Include="Xml\pugiconfig.hpp" />
+    <ClInclude Include="Xml\pugixml.hpp" />
+    <ClInclude Include="Xml\tinyxml2.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ChildFrm.cpp" />
     <ClCompile Include="ClassView.cpp" />
     <ClCompile Include="FileView.cpp" />
+    <ClCompile Include="Format\format.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Format\posix.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="HDCtrl\hdfcommagent.cpp" />
+    <ClCompile Include="Log\loguru.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="OutputWnd.cpp" />
     <ClCompile Include="pch.cpp">
@@ -227,10 +287,18 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="PropertiesWnd.cpp" />
+    <ClCompile Include="SmCategory.cpp" />
+    <ClCompile Include="SmChartData.cpp" />
+    <ClCompile Include="SmChartDataManager.cpp" />
     <ClCompile Include="SmClient.cpp" />
     <ClCompile Include="SmClientDoc.cpp" />
     <ClCompile Include="SmClientView.cpp" />
+    <ClCompile Include="SmConfigManager.cpp" />
     <ClCompile Include="SmErrorHandler.cpp" />
+    <ClCompile Include="SmHdClient.cpp" />
+    <ClCompile Include="SmHdCtrl.cpp" />
+    <ClCompile Include="SmMarket.cpp" />
+    <ClCompile Include="SmMarketManager.cpp" />
     <ClCompile Include="SmNetClient.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -240,7 +308,27 @@
     <ClCompile Include="SmSessionManager.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SmSymbol.cpp" />
+    <ClCompile Include="SmSymbolManager.cpp" />
+    <ClCompile Include="SmSymbolReader.cpp" />
+    <ClCompile Include="SmTimeSeriesCollector.cpp" />
+    <ClCompile Include="SmTimeSeriesDBManager.cpp" />
+    <ClCompile Include="SmTimeSeriesServiceManager.cpp" />
+    <ClCompile Include="SmUtfUtil.cpp" />
+    <ClCompile Include="SmUtil.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Time\tz.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Util\VtStringUtil.cpp" />
     <ClCompile Include="ViewTree.cpp" />
+    <ClCompile Include="Xml\pugixml.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Xml\tinyxml2.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SmClient.rc" />
@@ -274,6 +362,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\SmClient.rc2" />
+    <None Include="Time\ios.mm" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="Config\Config.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

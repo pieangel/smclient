@@ -77,7 +77,7 @@ void SmSessionManager::RegisterCycleData(std::string symCode, int chartType, int
 	if (!_Session)
 		return;
 	json reg_symbol;
-	reg_symbol["req_id"] = SmProtocol::req_register_symbol_cycle;
+	reg_symbol["req_id"] = SmProtocol::req_register_chart_cycle_data;
 	reg_symbol["user_id"] = _Session->Id();
 	reg_symbol["symbol_code"] = symCode;
 	reg_symbol["chart_type"] = std::to_string(chartType);
