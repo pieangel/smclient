@@ -15,7 +15,9 @@ public:
 	SmMongoDBManager();
 	~SmMongoDBManager();
 	void Test();
+	void ReadSymbol();
 private:
+	void SaveSymbolsToDatabase();
 	void InitDatabase();
 	mongocxx::instance* _Instance = nullptr;
 	mongocxx::client* _Client = nullptr;

@@ -13,6 +13,12 @@
 #include <mongocxx/uri.hpp>
 #include <string>
 #include <iostream>
+#include "SmMarketManager.h"
+#include "SmSymbolReader.h"
+#include "SmConfigManager.h"
+#include "SmUtfUtil.h"
+#include "SmMarket.h"
+#include "SmCategory.h"
 
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_array;
@@ -140,6 +146,75 @@ void SmMongoDBManager::Test()
 		std::cout << result->modified_count() << "\n";
 	}
 
+}
+
+void SmMongoDBManager::ReadSymbol()
+{
+	SmSymbolReader* symReader = SmSymbolReader::GetInstance();
+	std::string dir = symReader->GetWorkingDir();
+	std::string name = dir;
+	SmMarketManager* mrktMgr = SmMarketManager::GetInstance();
+
+	//DbTest();
+
+	SmConfigManager* configMgr = SmConfigManager::GetInstance();
+	std::string appPath = configMgr->GetApplicationPath();
+
+	mrktMgr->ReadSymbolsFromFile();
+
+	SaveSymbolsToDatabase();
+}
+
+void SmMongoDBManager::SaveSymbolsToDatabase()
+{
+	try
+	{
+		auto db = (*_Client)["andromeda"];
+		using namespace bsoncxx;
+
+		// 먼저 시장이 있는지 검색한다. 
+		// 그리고 시장 속에 상품이 있는지 검색한다.
+		mongocxx::collection coll = db["market_list"];
+		
+		builder::stream::document builder{};
+
+		SmMarketManager* marketMgr = SmMarketManager::GetInstance();
+		std::vector<SmMarket*>& marketList = marketMgr->GetMarketList();
+		for (size_t i = 0; i < marketList.size(); ++i) {
+			SmMarket* market = marketList[i];
+			bsoncxx::stdx::optional<bsoncxx::document::value> found_market =
+				coll.find_one(bsoncxx::builder::stream::document{} << "market_name" << SmUtfUtil::AnsiToUtf8((char*)market->Name().c_str()) << finalize);
+			if (!found_market) {
+				auto in_array = builder << "product_list" << builder::stream::open_array;
+				std::vector<SmCategory*>& catVec = market->GetCategoryList();
+				for (size_t j = 0; j < catVec.size(); ++j) {
+					SmCategory* cat = catVec[j];
+					bsoncxx::stdx::optional<bsoncxx::document::value> found_product =
+						coll.find_one(bsoncxx::builder::stream::document{} << "prodcut_list.product_code" << cat->Code() << finalize);
+					if (!found_product) {
+						in_array = in_array << builder::stream::open_document
+							<< "product_index" << (int)j
+							<< "product_code" << cat->Code()
+							<< "product_name_kr" << SmUtfUtil::AnsiToUtf8((char*)cat->NameKr().c_str())
+							<< "product_name_en" << cat->Name()
+							<< "exchange_name" << cat->Exchange()
+							<< "exchange_code" << cat->ExchangeCode()
+							<< "market_name" << SmUtfUtil::AnsiToUtf8((char*)cat->MarketName().c_str())
+							<< builder::stream::close_document;
+					}
+				}
+				auto after_array = in_array << builder::stream::close_array;
+				after_array << "market_index" << (int)i
+					<< "market_name" << SmUtfUtil::AnsiToUtf8((char*)market->Name().c_str());
+				bsoncxx::document::value doc = after_array << builder::stream::finalize;
+				auto res = db["market_list"].insert_one(std::move(doc));
+			}
+		}
+	}
+	catch (std::exception e) {
+		std::string error;
+		error = e.what();
+	}
 }
 
 void SmMongoDBManager::InitDatabase()

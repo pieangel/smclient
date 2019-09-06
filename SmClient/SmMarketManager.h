@@ -27,6 +27,9 @@ public:
 	void SendSymbolListByCategory(std::string user_id);
 	int GetTotalCategoryCount();
 	int GetTotalSymbolCount();
+	std::vector<SmMarket*>& GetMarketList() {
+		return _MarketList;
+	}
 private:
 	void SendSymbolMaster(std::string user_id, SmSymbol* sym);
 	std::vector<SmMarket*> _MarketList;

@@ -792,9 +792,9 @@ void SmHdCtrl::OnGetMsgWithRqId(int nRqId, CString strCode, CString strMsg)
 	msg.Format(_T("req_id = %d, hd_server_code = %s, hd_server_msg = %s\n"), nRqId, strCode, strMsg);
 	TRACE(msg);
 
-	if (strMsg.Find(_T("[MST] 해외종목 메모리 로드 완료")) == 0) {
+	if (strCode.Find(_T("0332")) == 0) {
 		AfxMessageBox(_T("종목 다운로드 완료"));
 		SmMongoDBManager* mongo = SmMongoDBManager::GetInstance();
-		mongo->Test();
+		mongo->ReadSymbol();
 	}
 }
