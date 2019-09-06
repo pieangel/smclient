@@ -17,6 +17,7 @@ public:
 	void Test();
 	void ReadSymbol();
 private:
+	void SaveMarketsToDatabase();
 	void SaveSymbolsToDatabase();
 	void InitDatabase();
 	mongocxx::instance* _Instance = nullptr;

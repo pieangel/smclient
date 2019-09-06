@@ -19,6 +19,7 @@
 #include "SmUtfUtil.h"
 #include "SmMarket.h"
 #include "SmCategory.h"
+#include "SmSymbol.h"
 
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_array;
@@ -162,10 +163,12 @@ void SmMongoDBManager::ReadSymbol()
 
 	mrktMgr->ReadSymbolsFromFile();
 
+	SaveMarketsToDatabase();
+
 	SaveSymbolsToDatabase();
 }
 
-void SmMongoDBManager::SaveSymbolsToDatabase()
+void SmMongoDBManager::SaveMarketsToDatabase()
 {
 	try
 	{
@@ -208,6 +211,58 @@ void SmMongoDBManager::SaveSymbolsToDatabase()
 					<< "market_name" << SmUtfUtil::AnsiToUtf8((char*)market->Name().c_str());
 				bsoncxx::document::value doc = after_array << builder::stream::finalize;
 				auto res = db["market_list"].insert_one(std::move(doc));
+			}
+		}
+	}
+	catch (std::exception e) {
+		std::string error;
+		error = e.what();
+	}
+}
+
+void SmMongoDBManager::SaveSymbolsToDatabase()
+{
+	try
+	{
+		auto db = (*_Client)["andromeda"];
+		using namespace bsoncxx;
+
+		// 먼저 시장이 있는지 검색한다. 
+		// 그리고 시장 속에 상품이 있는지 검색한다.
+		mongocxx::collection coll = db["symbol_list"];
+
+		builder::stream::document builder{};
+
+		SmMarketManager* marketMgr = SmMarketManager::GetInstance();
+		std::vector<SmMarket*>& marketList = marketMgr->GetMarketList();
+
+		for (size_t i = 0; i < marketList.size(); ++i) {
+			SmMarket* market = marketList[i];
+			std::vector<SmCategory*>& cat_list = market->GetCategoryList();
+			for (size_t j = 0; j < cat_list.size(); ++j) {
+				SmCategory* cat = cat_list[j];
+				std::vector<SmSymbol*>& sym_list = cat->GetSymbolList();
+				for (size_t k = 0; k < sym_list.size(); ++k) {
+					SmSymbol* sym = sym_list[k];
+					bsoncxx::stdx::optional<bsoncxx::document::value> found_symbol =
+						coll.find_one(bsoncxx::builder::stream::document{} << "symbol_list" << sym->SymbolCode() << finalize);
+					if (!found_symbol) {
+						bsoncxx::document::value doc_value = builder
+							<< "symbol_code" << sym->SymbolCode()
+							<< "symbol_index" << sym->Index()
+							<< "symbol_name_kr" << SmUtfUtil::AnsiToUtf8((char*)sym->Name().c_str())
+							<< "symbol_name_en" << sym->NameEn()
+							<< "product_code" << sym->CategoryCode()
+							<< "market_name" << SmUtfUtil::AnsiToUtf8((char*)sym->MarketName().c_str())
+							<< "decimal" << sym->Decimal()
+							<< "contract_unit" << sym->CtrUnit()
+							<< "seungsu" << sym->Seungsu()
+							<< "tick_size" << sym->TickSize()
+							<< "tick_value" << sym->TickValue()
+							<< bsoncxx::builder::stream::finalize;
+						auto res = db["symbol_list"].insert_one(std::move(doc_value));
+					}
+				}
 			}
 		}
 	}
