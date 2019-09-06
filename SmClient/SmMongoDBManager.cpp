@@ -20,6 +20,8 @@
 #include "SmMarket.h"
 #include "SmCategory.h"
 #include "SmSymbol.h"
+#include <codecvt>
+#include <locale>
 
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_array;
@@ -210,9 +212,29 @@ void SmMongoDBManager::SaveMarketsToDatabase()
 				after_array << "market_index" << (int)i
 					<< "market_name" << SmUtfUtil::AnsiToUtf8((char*)market->Name().c_str());
 				bsoncxx::document::value doc = after_array << builder::stream::finalize;
+
+				bsoncxx::document::view view = doc.view();
+
+				// Once we have the document view, we can use ["key"] or [index] notation to reach into nested
+				// documents or arrays.
+				auto awards = view["market_name"];
+
+								
+				std::string MyString = awards.get_utf8().value.to_string();
+
+				std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8conv;
+				std::wstring cv = utf8conv.from_bytes(MyString);
+
+				std::string value;
+				value = SmUtfUtil::unicode2ansi(cv);
+
 				auto res = db["market_list"].insert_one(std::move(doc));
+
+				
 			}
 		}
+
+		
 	}
 	catch (std::exception e) {
 		std::string error;

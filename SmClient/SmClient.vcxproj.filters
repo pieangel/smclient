@@ -56,6 +56,9 @@
     <Filter Include="UtfUtil">
       <UniqueIdentifier>{0e24d71f-06f1-4c40-880d-8b8d143684ee}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Server">
+      <UniqueIdentifier>{67ba1f22-7f01-4477-a5fa-fc7ef3186a1a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Json\json.hpp">
@@ -229,24 +232,6 @@
     <ClInclude Include="SmClientView.h">
       <Filter>Main</Filter>
     </ClInclude>
-    <ClInclude Include="SmErrorHandler.h">
-      <Filter>Main</Filter>
-    </ClInclude>
-    <ClInclude Include="SmNetClient.h">
-      <Filter>Main</Filter>
-    </ClInclude>
-    <ClInclude Include="SmNetDefine.h">
-      <Filter>Main</Filter>
-    </ClInclude>
-    <ClInclude Include="SmServiceDefine.h">
-      <Filter>Main</Filter>
-    </ClInclude>
-    <ClInclude Include="SmSession.h">
-      <Filter>Main</Filter>
-    </ClInclude>
-    <ClInclude Include="SmSessionManager.h">
-      <Filter>Main</Filter>
-    </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>Main</Filter>
     </ClInclude>
@@ -273,6 +258,24 @@
     </ClInclude>
     <ClInclude Include="SmMongoDBManager.h">
       <Filter>Database</Filter>
+    </ClInclude>
+    <ClInclude Include="SmErrorHandler.h">
+      <Filter>Server</Filter>
+    </ClInclude>
+    <ClInclude Include="SmNetClient.h">
+      <Filter>Server</Filter>
+    </ClInclude>
+    <ClInclude Include="SmNetDefine.h">
+      <Filter>Server</Filter>
+    </ClInclude>
+    <ClInclude Include="SmServiceDefine.h">
+      <Filter>Server</Filter>
+    </ClInclude>
+    <ClInclude Include="SmSession.h">
+      <Filter>Server</Filter>
+    </ClInclude>
+    <ClInclude Include="SmSessionManager.h">
+      <Filter>Server</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -360,18 +363,6 @@
     <ClCompile Include="SmClientView.cpp">
       <Filter>Main</Filter>
     </ClCompile>
-    <ClCompile Include="SmErrorHandler.cpp">
-      <Filter>Main</Filter>
-    </ClCompile>
-    <ClCompile Include="SmNetClient.cpp">
-      <Filter>Main</Filter>
-    </ClCompile>
-    <ClCompile Include="SmSession.cpp">
-      <Filter>Main</Filter>
-    </ClCompile>
-    <ClCompile Include="SmSessionManager.cpp">
-      <Filter>Main</Filter>
-    </ClCompile>
     <ClCompile Include="ViewTree.cpp">
       <Filter>Main</Filter>
     </ClCompile>
@@ -395,6 +386,18 @@
     </ClCompile>
     <ClCompile Include="SmMongoDBManager.cpp">
       <Filter>Database</Filter>
+    </ClCompile>
+    <ClCompile Include="SmErrorHandler.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="SmNetClient.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="SmSession.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="SmSessionManager.cpp">
+      <Filter>Server</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
