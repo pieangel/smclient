@@ -2,6 +2,7 @@
 //
 
 #include "pch.h"
+#include "SmMongoDBManager.h"
 #include "SmClient.h"
 #include "SmHdCtrl.h"
 #include "afxdialogex.h"
@@ -19,6 +20,7 @@
 #include "SmChartDataManager.h"
 #include "SmChartData.h"
 #include "SmTimeSeriesServiceManager.h"
+
 using namespace nlohmann;
 // VtHdCtrl dialog
 
@@ -789,4 +791,10 @@ void SmHdCtrl::OnGetMsgWithRqId(int nRqId, CString strCode, CString strMsg)
 	CString msg;
 	msg.Format(_T("req_id = %d, hd_server_code = %s, hd_server_msg = %s\n"), nRqId, strCode, strMsg);
 	TRACE(msg);
+
+	if (strMsg.Find(_T("[MST] 해외종목 메모리 로드 완료")) == 0) {
+		AfxMessageBox(_T("종목 다운로드 완료"));
+		SmMongoDBManager* mongo = SmMongoDBManager::GetInstance();
+		mongo->Test();
+	}
 }

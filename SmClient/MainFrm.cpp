@@ -14,6 +14,7 @@
 #include "SmConfigManager.h"
 #include "Xml/pugixml.hpp"
 #include "SmHdClient.h"
+//#include "SmMongoDBManager.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -471,6 +472,7 @@ void CMainFrame::OnServerLogin()
 void CMainFrame::OnClose()
 {
 	// TODO: Add your message handler code here and/or call default
+	//SmMongoDBManager::DestroyInstance();
 	SmSessionManager::DestroyInstance();
 	SmErrorHandler::DestroyInstance();
 	SmSymbolReader::DestroyInstance();

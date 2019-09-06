@@ -92,14 +92,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_SILENCE_CXX17_UNCAUGHT_EXCEPTION_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_CRT_SECURE_NO_WARNINGS;_WINSOCK_DEPRECATED_NO_WARNINGS;_SILENCE_CXX17_UNCAUGHT_EXCEPTION_DEPRECATION_WARNING;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>C:\Project\json-develop\json-develop\single_include;C:\Project\boost_1_70_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(BOOST_ROOT);$(MYSQL_ROOT)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>C:\Project\boost_1_70_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(MYSQL_ROOT)\lib;$(BOOST_ROOT)\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -233,6 +233,7 @@
     <ClInclude Include="SmHogaDefine.h" />
     <ClInclude Include="SmMarket.h" />
     <ClInclude Include="SmMarketManager.h" />
+    <ClInclude Include="SmMongoDBManager.h" />
     <ClInclude Include="SmNetClient.h" />
     <ClInclude Include="SmNetDefine.h" />
     <ClInclude Include="SmQuoteDefine.h" />
@@ -296,9 +297,14 @@
     <ClCompile Include="SmConfigManager.cpp" />
     <ClCompile Include="SmErrorHandler.cpp" />
     <ClCompile Include="SmHdClient.cpp" />
-    <ClCompile Include="SmHdCtrl.cpp" />
+    <ClCompile Include="SmHdCtrl.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="SmMarket.cpp" />
     <ClCompile Include="SmMarketManager.cpp" />
+    <ClCompile Include="SmMongoDBManager.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="SmNetClient.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
@@ -312,7 +318,9 @@
     <ClCompile Include="SmSymbolManager.cpp" />
     <ClCompile Include="SmSymbolReader.cpp" />
     <ClCompile Include="SmTimeSeriesCollector.cpp" />
-    <ClCompile Include="SmTimeSeriesDBManager.cpp" />
+    <ClCompile Include="SmTimeSeriesDBManager.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="SmTimeSeriesServiceManager.cpp" />
     <ClCompile Include="SmUtfUtil.cpp" />
     <ClCompile Include="SmUtil.cpp">

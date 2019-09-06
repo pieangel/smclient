@@ -271,6 +271,9 @@
     <ClInclude Include="SmUtfUtil.h">
       <Filter>UtfUtil</Filter>
     </ClInclude>
+    <ClInclude Include="SmMongoDBManager.h">
+      <Filter>Database</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HDCtrl\hdfcommagent.cpp">
@@ -389,6 +392,9 @@
     </ClCompile>
     <ClCompile Include="SmUtfUtil.cpp">
       <Filter>UtfUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="SmMongoDBManager.cpp">
+      <Filter>Database</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
