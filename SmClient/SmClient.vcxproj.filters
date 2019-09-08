@@ -271,10 +271,13 @@
     <ClInclude Include="SmServiceDefine.h">
       <Filter>Server</Filter>
     </ClInclude>
-    <ClInclude Include="SmSession.h">
+    <ClInclude Include="SmSessionManager.h">
       <Filter>Server</Filter>
     </ClInclude>
-    <ClInclude Include="SmSessionManager.h">
+    <ClInclude Include="SmProtocolManager.h">
+      <Filter>Server</Filter>
+    </ClInclude>
+    <ClInclude Include="SmWebsocketSession.h">
       <Filter>Server</Filter>
     </ClInclude>
   </ItemGroup>
@@ -393,10 +396,13 @@
     <ClCompile Include="SmNetClient.cpp">
       <Filter>Server</Filter>
     </ClCompile>
-    <ClCompile Include="SmSession.cpp">
+    <ClCompile Include="SmSessionManager.cpp">
       <Filter>Server</Filter>
     </ClCompile>
-    <ClCompile Include="SmSessionManager.cpp">
+    <ClCompile Include="SmProtocolManager.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="SmWebsocketSession.cpp">
       <Filter>Server</Filter>
     </ClCompile>
   </ItemGroup>

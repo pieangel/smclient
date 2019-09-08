@@ -1,5 +1,6 @@
-#include "SmSession.h"
+#include "SmWebsocketSession.h"
 #include "SmSessionManager.h"
+#include "SmProtocolManager.h"
 // Report a failure
 void
 fail(beast::error_code ec, char const* what)
@@ -7,12 +8,12 @@ fail(beast::error_code ec, char const* what)
 	std::cerr << what << ": " << ec.message() << "\n";
 }
 
-SmSession::~SmSession()
+SmWebsocketSession::~SmWebsocketSession()
 {
 	
 }
 
-void SmSession::run(char const* host, char const* port, char const* id, char const* pwd)
+void SmWebsocketSession::run(char const* host, char const* port, char const* id, char const* pwd)
 {
 	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
 	sessMgr->Session(this);
@@ -26,11 +27,11 @@ void SmSession::run(char const* host, char const* port, char const* id, char con
 		host,
 		port,
 		beast::bind_front_handler(
-			&SmSession::on_resolve,
+			&SmWebsocketSession::on_resolve,
 			shared_from_this()));
 }
 
-void SmSession::on_resolve(beast::error_code ec, tcp::resolver::results_type results)
+void SmWebsocketSession::on_resolve(beast::error_code ec, tcp::resolver::results_type results)
 {
 	if (ec)
 		return fail(ec, "resolve");
@@ -42,11 +43,11 @@ void SmSession::on_resolve(beast::error_code ec, tcp::resolver::results_type res
 	beast::get_lowest_layer(ws_).async_connect(
 		results,
 		beast::bind_front_handler(
-			&SmSession::on_connect,
+			&SmWebsocketSession::on_connect,
 			shared_from_this()));
 }
 
-void SmSession::on_connect(beast::error_code ec, tcp::resolver::results_type::endpoint_type)
+void SmWebsocketSession::on_connect(beast::error_code ec, tcp::resolver::results_type::endpoint_type)
 {
 	if (ec)
 		return fail(ec, "connect");
@@ -72,11 +73,11 @@ void SmSession::on_connect(beast::error_code ec, tcp::resolver::results_type::en
 	// Perform the websocket handshake
 	ws_.async_handshake(host_, "/",
 		beast::bind_front_handler(
-			&SmSession::on_handshake,
+			&SmWebsocketSession::on_handshake,
 			shared_from_this()));
 }
 
-void SmSession::on_handshake(beast::error_code ec)
+void SmWebsocketSession::on_handshake(beast::error_code ec)
 {
 	if (ec)
 		return fail(ec, "handshake");
@@ -84,7 +85,7 @@ void SmSession::on_handshake(beast::error_code ec)
 	do_read();
 }
 
-void SmSession::on_write(beast::error_code ec, std::size_t bytes_transferred)
+void SmWebsocketSession::on_write(beast::error_code ec, std::size_t bytes_transferred)
 {
 	boost::ignore_unused(bytes_transferred);
 
@@ -99,34 +100,38 @@ void SmSession::on_write(beast::error_code ec, std::size_t bytes_transferred)
 		ws_.async_write(
 			net::buffer(*queue_.front()),
 			beast::bind_front_handler(
-				&SmSession::on_write,
+				&SmWebsocketSession::on_write,
 				shared_from_this()));
 }
 
-void SmSession::do_read()
+void SmWebsocketSession::do_read()
 {
 	// Read a message into our buffer
 	ws_.async_read(
 		buffer_,
 		beast::bind_front_handler(
-			&SmSession::on_read,
+			&SmWebsocketSession::on_read,
 			shared_from_this()));
 }
 
-void SmSession::on_read(beast::error_code ec, std::size_t bytes_transferred)
+void SmWebsocketSession::on_read(beast::error_code ec, std::size_t bytes_transferred)
 {
 	boost::ignore_unused(bytes_transferred);
 
 	if (ec)
 		return fail(ec, "read");
-	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
-	sessMgr->OnMessage(beast::buffers_to_string(buffer_.data()));
+	//SmSessionManager* sessMgr = SmSessionManager::GetInstance();
+	//sessMgr->OnMessage(beast::buffers_to_string(buffer_.data()));
+	//buffer_.consume(buffer_.size());
+	SmProtocolManager* msgMgr = SmProtocolManager::GetInstance();
+	msgMgr->OnMessage(beast::buffers_to_string(buffer_.data()), this);
+	// Clear the buffer
 	buffer_.consume(buffer_.size());
 
 	do_read();
 }
 
-void SmSession::on_close(beast::error_code ec)
+void SmWebsocketSession::on_close(beast::error_code ec)
 {
 	if (ec)
 		return fail(ec, "close");
@@ -137,7 +142,7 @@ void SmSession::on_close(beast::error_code ec)
 	std::cout << beast::make_printable(buffer_.data()) << std::endl;
 }
 
-void SmSession::send(boost::shared_ptr<std::string const> const& ss)
+void SmWebsocketSession::send(boost::shared_ptr<std::string const> const& ss)
 {
 	// Post our work to the strand, this ensures
 	// that the members of `this` will not be
@@ -146,12 +151,12 @@ void SmSession::send(boost::shared_ptr<std::string const> const& ss)
 	net::post(
 		ws_.get_executor(),
 		beast::bind_front_handler(
-			&SmSession::on_send,
+			&SmWebsocketSession::on_send,
 			shared_from_this(),
 			ss));
 }
 
-void SmSession::on_send(boost::shared_ptr<std::string const> const& ss)
+void SmWebsocketSession::on_send(boost::shared_ptr<std::string const> const& ss)
 {
 	// Always add to queue
 	queue_.push_back(ss);
@@ -164,15 +169,15 @@ void SmSession::on_send(boost::shared_ptr<std::string const> const& ss)
 	ws_.async_write(
 		net::buffer(*queue_.front()),
 		beast::bind_front_handler(
-			&SmSession::on_write,
+			&SmWebsocketSession::on_write,
 			shared_from_this()));
 }
 
-void SmSession::close()
+void SmWebsocketSession::close()
 {
 	// Close the WebSocket connection
 	ws_.async_close(websocket::close_code::normal,
 		beast::bind_front_handler(
-			&SmSession::on_close,
+			&SmWebsocketSession::on_close,
 			shared_from_this()));
 }

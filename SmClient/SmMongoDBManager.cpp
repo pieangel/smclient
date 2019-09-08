@@ -267,7 +267,7 @@ void SmMongoDBManager::SaveSymbolsToDatabase()
 				for (size_t k = 0; k < sym_list.size(); ++k) {
 					SmSymbol* sym = sym_list[k];
 					bsoncxx::stdx::optional<bsoncxx::document::value> found_symbol =
-						coll.find_one(bsoncxx::builder::stream::document{} << "symbol_list" << sym->SymbolCode() << finalize);
+						coll.find_one(bsoncxx::builder::stream::document{} << "symbol_code" << sym->SymbolCode() << finalize);
 					if (!found_symbol) {
 						bsoncxx::document::value doc_value = builder
 							<< "symbol_code" << sym->SymbolCode()

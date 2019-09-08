@@ -81,5 +81,14 @@ enum class SmProtocol {
 	res_symbol_position,
 	// 주문 관련 오류
 	res_order_error,
-	req_position_list
+	// 포지션 목록 요청
+	req_position_list,
+	// 포지션 목록 응답
+	res_position_list,
+	// 시세 소켓 등록 요청
+	req_register_sise_socket,
+	// 시세 소켓 등록 응답
+	res_register_sise_socket,
+	// 시세 차트에서 차트 데이터를 받았음을 알리고 클라이언트에게 전송을 종용한다.
+	req_chart_data_resend
 };

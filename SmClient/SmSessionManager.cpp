@@ -1,14 +1,14 @@
 #include "SmSessionManager.h"
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/smart_ptr/make_shared.hpp>
-#include "SmSession.h"
+#include "SmWebsocketSession.h"
 #include "Json/json.hpp"
 #include "SmErrorHandler.h"
 #include "SmServiceDefine.h"
 using namespace nlohmann;
 SmSessionManager::SmSessionManager()
 {
-
+	int i = 0;
 }
 
 SmSessionManager::~SmSessionManager()
@@ -45,6 +45,23 @@ void SmSessionManager::Login()
 }
 
 
+
+void SmSessionManager::RegisterSiseSocket()
+{
+	if (!_Session)
+		return;
+
+	auto j3 = json::parse("{\"happy\": true, \"pi\": 3.141 }");
+
+	std::string re = j3.dump();
+
+	json send_info;
+	send_info["req_id"] = (int)SmProtocol::req_register_sise_socket;
+	send_info["user_info"]["id"] = _Session->Id();
+	send_info["user_info"]["pwd"] = _Session->Pwd();
+	std::string msg = send_info.dump(4);
+	Send(send_info.dump(4));
+}
 
 void SmSessionManager::RegisterProduct(std::string symCode)
 {

@@ -15,7 +15,7 @@ namespace websocket = beast::websocket; // from <boost/beast/websocket.hpp>
 namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
-class SmSession : public std::enable_shared_from_this<SmSession>
+class SmWebsocketSession : public std::enable_shared_from_this<SmWebsocketSession>
 {
 private:
 	tcp::resolver resolver_;
@@ -28,13 +28,13 @@ private:
 public:
 	// Resolver and socket require an io_context
 	explicit
-		SmSession(net::io_context& ioc)
+		SmWebsocketSession(net::io_context& ioc)
 		: resolver_(net::make_strand(ioc))
 		, ws_(net::make_strand(ioc))
 	{
 	}
 
-	~SmSession();
+	~SmWebsocketSession();
 	// Start the asynchronous operation
 	void
 		run(

@@ -236,9 +236,10 @@
     <ClInclude Include="SmMongoDBManager.h" />
     <ClInclude Include="SmNetClient.h" />
     <ClInclude Include="SmNetDefine.h" />
+    <ClInclude Include="SmProtocolManager.h" />
     <ClInclude Include="SmQuoteDefine.h" />
     <ClInclude Include="SmServiceDefine.h" />
-    <ClInclude Include="SmSession.h" />
+    <ClInclude Include="SmWebsocketSession.h" />
     <ClInclude Include="SmSessionManager.h" />
     <ClInclude Include="SmSymbol.h" />
     <ClInclude Include="SmSymbolManager.h" />
@@ -308,7 +309,8 @@
     <ClCompile Include="SmNetClient.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="SmSession.cpp">
+    <ClCompile Include="SmProtocolManager.cpp" />
+    <ClCompile Include="SmWebsocketSession.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SmSessionManager.cpp">

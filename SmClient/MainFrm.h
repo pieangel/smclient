@@ -73,6 +73,8 @@ public:
 
 private:
 	void InitHdClient();
+public:
+	afx_msg void OnServerRegistersocket();
 };
 
 

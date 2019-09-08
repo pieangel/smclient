@@ -47,6 +47,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWndEx)
 	ON_COMMAND(ID_SERVER_GETCHARTDATA, &CMainFrame::OnServerGetchartdata)
 	ON_COMMAND(ID_SERVER_GETSISEDATA, &CMainFrame::OnServerGetsisedata)
 	ON_COMMAND(ID_SERVER_REGISTERCYCLEDT, &CMainFrame::OnServerRegistercycledt)
+	ON_COMMAND(ID_SERVER_REGISTERSOCKET, &CMainFrame::OnServerRegistersocket)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -509,6 +510,7 @@ void CMainFrame::OnShowWindow(BOOL bShow, UINT nStatus)
 	}
 
 	hdClient->DownloadMasterFiles("futures");
+
 }
 
 
@@ -560,4 +562,11 @@ void CMainFrame::OnServerRegistercycledt()
 void CMainFrame::InitHdClient()
 {
 
+}
+
+
+void CMainFrame::OnServerRegistersocket()
+{
+	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
+	sessMgr->RegisterSiseSocket();
 }

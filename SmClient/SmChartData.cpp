@@ -248,5 +248,5 @@ void SmChartData::RemoveUser(std::string user_id)
 
 void SmChartData::OnTimer()
 {
-	GetCyclicDataFromServer();
+	//GetCyclicDataFromServer();
 }

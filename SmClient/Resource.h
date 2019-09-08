@@ -84,7 +84,6 @@
 #define IDS_FIND_TAB                    302
 #define IDS_EXPLORER                    305
 #define IDS_EDIT_MENU                   306
-#define IDD_DIALOG1                     310
 #define IDD_HD_CTRL                     310
 #define ID_SERVER_CONNECT               32771
 #define ID_SERVER_LOGIN                 32772
@@ -94,13 +93,14 @@
 #define ID_SERVER_GETCHARTDATA          32776
 #define ID_SERVER_GETSISEDATA           32777
 #define ID_SERVER_REGISTERCYCLEDT       32778
+#define ID_SERVER_REGISTERSOCKET        32779
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        312
-#define _APS_NEXT_COMMAND_VALUE         32779
+#define _APS_NEXT_COMMAND_VALUE         32780
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
