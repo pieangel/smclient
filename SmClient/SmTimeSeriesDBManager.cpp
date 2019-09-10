@@ -24,7 +24,7 @@ namespace ip = boost::asio::ip;
 
 SmTimeSeriesDBManager::SmTimeSeriesDBManager()
 {
-	std::vector<std::string> addr_vec = GetIPAddress("signalmaster.iptime.org");
+	std::vector<std::string> addr_vec = GetIPAddress("angelpie.ddns.net");
 	_Ip = addr_vec[0];
 	_Port = 8086;
 	_DatabaseName = "abroad_future";

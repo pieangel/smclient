@@ -16,6 +16,8 @@
 #include "SmSymbol.h"
 #include "SmServiceDefine.h"
 #include "SmUtfUtil.h"
+#include "SmMongoDBManager.h"
+#include "SmSessionManager.h"
 
 using namespace std::chrono;
 using namespace nlohmann;
@@ -195,11 +197,26 @@ void SmTimeSeriesServiceManager::OnCompleteChartData(SmChartDataRequest data_req
 	if (!chart_data)
 		return;
 	// 차트데이터를 받았음을 표시해 준다.
-	chart_data->Received(true);
+	//chart_data->Received(true);
 	// 주기데이터를 먼저 등록해 준다.
-	RegisterCycleChartDataRequest(data_req);
+	//RegisterCycleChartDataRequest(data_req);
 	// 차트데이터를 보낸다.
-	SendChartData(std::move(data_req), chart_data);
+	//SendChartData(std::move(data_req), chart_data);
+	SmMongoDBManager* mongoMgr = SmMongoDBManager::GetInstance();
+	mongoMgr->SaveChartData(chart_data);
+	// 여기서 서버에 차트 데이터가 도착했음을 알린다.
+	json send_object;
+	send_object["req_id"] = SmProtocol::req_chart_data_resend;
+	send_object["service_req_id"] = data_req.service_req_id;
+	send_object["session_id"] = data_req.session_id;
+	send_object["user_id"] = data_req.user_id;
+	send_object["symbol_code"] = data_req.symbolCode;
+	send_object["chart_type"] = (int)data_req.chartType;
+	send_object["cycle"] = data_req.cycle;
+	send_object["count"] = data_req.count;
+	std::string content = send_object.dump();
+	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
+	sessMgr->Send(content);
 }
 
 void SmTimeSeriesServiceManager::SendChartData(std::vector<SmSimpleChartDataItem>& dataVec, SmChartDataRequest req, int totalCount, int startIndex, int endIndex)
@@ -265,9 +282,9 @@ void SmTimeSeriesServiceManager::RegisterTimer(SmChartData* chartData)
 	int waitTime = timer_times.second;
 	// 주기를 초로 환산해서 대입한다.
 	// Add to the timer.
-	auto id = _Timer.add(seconds(waitTime), std::bind(&SmChartData::OnTimer, chartData), seconds(timer_times.first));
+	//auto id = _Timer.add(seconds(waitTime), std::bind(&SmChartData::OnTimer, chartData), seconds(timer_times.first));
 	// Add to the request map.
-	_CycleDataReqTimerMap[chartData->GetDataKey()] = id;
+	//_CycleDataReqTimerMap[chartData->GetDataKey()] = id;
 }
 
 void SmTimeSeriesServiceManager::SendChartDataFromDB(SmChartDataRequest&& data_req)

@@ -16,6 +16,7 @@
 #include "SmChartDataManager.h"
 #include "SmChartData.h"
 #include "SmMarketManager.h"
+#include "SmHdClient.h"
 using namespace nlohmann;
 SmProtocolManager::SmProtocolManager()
 {
@@ -99,6 +100,9 @@ void SmProtocolManager::ParseMessage(std::string message, SmWebsocketSession* so
 			break;
 		case SmProtocol::req_symbol_list_by_category:
 			OnReqSymbolListByCategory(json_object);
+			break;
+		case SmProtocol::req_chart_data_from_main_server:
+			OnReqChartDataFromMainServer(json_object);
 			break;
 		default:
 			break;
@@ -401,6 +405,34 @@ void SmProtocolManager::OnReqSymbolListByCategory(nlohmann::json& obj)
 		SmMarketManager* marketMgr = SmMarketManager::GetInstance();
 		std::string id = obj["user_id"];
 		marketMgr->SendSymbolListByCategory(id);
+	}
+	catch (std::exception e) {
+		std::string error = e.what();
+	}
+}
+
+void SmProtocolManager::OnReqChartDataFromMainServer(nlohmann::json& obj)
+{
+	try {
+		int session_id = obj["session_id"];
+		std::string user_id = obj["user_id"];
+		int service_req_id = obj["service_req_id"];
+		std::string symCode = obj["symbol_code"];
+		int chart_type = obj["chart_type"];
+		int cycle = obj["cycle"];
+		int count = obj["count"];
+		SmChartDataRequest req;
+		req.service_req_id = service_req_id;
+		req.session_id = session_id;
+		req.user_id = user_id;
+		req.reqType = SmChartDataReqestType::FIRST;
+		req.symbolCode = symCode;
+		req.chartType = (SmChartType)chart_type;
+		req.cycle = cycle;
+		req.count = count;
+		req.next = 0;
+		SmHdClient* client = SmHdClient::GetInstance();
+		client->GetChartData(req);
 	}
 	catch (std::exception e) {
 		std::string error = e.what();

@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 #include "SmChartDefine.h"
+#include <queue>
 
 #pragma once
 // °èÁÂ
@@ -134,7 +135,9 @@ public:
 	void DownloadMasterFiles(std::string param);
 	void GetSiseData(std::string symCode);
 	void GetHogaData(std::string symCode);
+	void RequestChartData(SmChartDataRequest req);
 private:
+	void RequestChartDataFromQ();
 	void OnRcvdAbroadHoga(CString& strKey, LONG& nRealType);
 	void OnRcvdAbroadSise(CString& strKey, LONG& nRealType);
 	void OnRcvdAbroadSiseByReq(CString& sTrCode, LONG& nRqID);
@@ -150,4 +153,6 @@ private:
 	/// </summary>
 	std::map<int, SmChartDataRequest> _ChartDataReqMap;
 	std::map<int, std::string> _SiseDataReqMap;
+	std::queue< SmChartDataRequest> _ChartDataReqQueue;
+	bool _Requested = false;
 };

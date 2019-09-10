@@ -162,9 +162,34 @@ void SmHdCtrl::UnregisterProduct(std::string symCode)
 }
 
 
+void SmHdCtrl::RequestChartData(SmChartDataRequest req)
+{
+	_ChartDataReqQueue.push(req);
+
+	if (_ChartDataReqQueue.size() > 1)
+		return;
+
+	SmChartDataRequest qReq = _ChartDataReqQueue.front();
+
+	GetChartData(qReq);
+
+	_ChartDataReqQueue.pop();
+}
+
+void SmHdCtrl::RequestChartDataFromQ()
+{
+	if (_ChartDataReqQueue.size() == 0)
+		return;
+	SmChartDataRequest qReq = _ChartDataReqQueue.front();
+
+	GetChartData(qReq);
+
+	_ChartDataReqQueue.pop();
+}
 
 void SmHdCtrl::GetChartData(SmChartDataRequest req)
 {
+	
 	if (req.chartType == SmChartType::TICK)
 		GetChartDataShortCycle(req);
 	else if (req.chartType == SmChartType::MIN)
@@ -644,9 +669,6 @@ void SmHdCtrl::OnRcvdAbroadChartData(CString& sTrCode, LONG& nRqID)
 			chart_data->PushChartDataItemToBack(data);
 		else
 			chart_data->UpdateChartData(data);
-		// 차트 데이터를 데이터 베이스에 저장한다.
-		// 이 부분은 일단 주석처리한다. - 시스템 리소스를 너무 많이 잡아 먹어서 따로 비동기로 수행해야 한다. 
-		//tsCol->OnChartDataItem(data);
 	}
 
 	// 차트 데이터 수신 요청 목록에서 제거한다.
@@ -657,6 +679,7 @@ void SmHdCtrl::OnRcvdAbroadChartData(CString& sTrCode, LONG& nRqID)
 			chart_data->OnChartDataUpdated();
 		}
 		else {
+			RequestChartDataFromQ();
 			// 차트 데이터 수신 완료를 알릴다.
 			SmTimeSeriesServiceManager* tsSvcMgr = SmTimeSeriesServiceManager::GetInstance();
 			tsSvcMgr->OnCompleteChartData(req, chart_data);
@@ -714,9 +737,6 @@ void SmHdCtrl::OnRcvdAbroadChartData2(CString& sTrCode, LONG& nRqID)
 			chart_data->PushChartDataItemToFront(data);
 		else
 			chart_data->UpdateChartData(data);
-		// 차트 데이터를 데이터 베이스에 저장한다.
-		// 이 부분은 일단 주석처리한다. - 시스템 리소스를 너무 많이 잡아 먹어서 따로 비동기로 수행해야 한다. 
-		//tsCol->OnChartDataItem(data);
 	}
 
 	// 차트 데이터 수신 요청 목록에서 제거한다.
@@ -727,6 +747,7 @@ void SmHdCtrl::OnRcvdAbroadChartData2(CString& sTrCode, LONG& nRqID)
 			chart_data->OnChartDataUpdated();
 		}
 		else {
+			RequestChartDataFromQ();
 			// 차트 데이터 수신 완료를 알릴다.
 			SmTimeSeriesServiceManager* tsSvcMgr = SmTimeSeriesServiceManager::GetInstance();
 			tsSvcMgr->OnCompleteChartData(req, chart_data);

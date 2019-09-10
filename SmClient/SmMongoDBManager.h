@@ -9,6 +9,7 @@ namespace mongocxx
 	MONGOCXX_INLINE_NAMESPACE_END
 };
 
+class SmChartData;
 class SmMongoDBManager : public TemplateSingleton<SmMongoDBManager>
 {
 public:
@@ -16,6 +17,7 @@ public:
 	~SmMongoDBManager();
 	void Test();
 	void ReadSymbol();
+	void SaveChartData(SmChartData* chart_data);
 private:
 	void SaveMarketsToDatabase();
 	void SaveSymbolsToDatabase();
