@@ -20,6 +20,7 @@
 #include "SmChartDataManager.h"
 #include "SmChartData.h"
 #include "SmTimeSeriesServiceManager.h"
+#include "SmSessionManager.h"
 
 using namespace nlohmann;
 // VtHdCtrl dialog
@@ -406,6 +407,7 @@ void SmHdCtrl::OnRcvdAbroadHoga(CString& strKey, LONG& nRealType)
 	CString strDomDate = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "국내일자");
 	CString strDomTime = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "국내시간");
 	SmHoga hoga_data;
+	hoga_data.SymbolCode = strSymCode;
 	for (int i = 0; i < 5; i++) {
 		hoga_data.Ary[i].BuyPrice = sym->Hoga.Ary[i].BuyPrice = _ttoi(hoga.Items[i].strBuyHoga);
 		hoga_data.Ary[i].BuyCnt = sym->Hoga.Ary[i].BuyCnt = _ttoi(hoga.Items[i].strBuyHogaCnt);
@@ -422,6 +424,12 @@ void SmHdCtrl::OnRcvdAbroadHoga(CString& strKey, LONG& nRealType)
 	hoga_data.TotBuyQty = sym->Hoga.TotBuyQty = _ttoi(strTotBuyQty);
 	hoga_data.TotSellCnt = sym->Hoga.TotSellCnt = _ttoi(strTotSellCnt);
 	hoga_data.TotSellQty = sym->Hoga.TotSellQty = _ttoi(strTotSellQty);
+
+	SmMongoDBManager* mongoMgr = SmMongoDBManager::GetInstance();
+	mongoMgr->SaveHoga(hoga_data);
+
+	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
+	sessMgr->SendReqUpdateHoga(hoga_data.SymbolCode);
 
 	//TRACE(sym->Hoga.Time.c_str());
 
@@ -462,9 +470,11 @@ void SmHdCtrl::OnRcvdAbroadSise(CString& strKey, LONG& nRealType)
 	quoteItem.Sign = strSign.Trim();
 
 
-	SmTimeSeriesDBManager* dbMgr = SmTimeSeriesDBManager::GetInstance();
-	//dbMgr->SaveQuoteItem(std::move(quoteItem));
-	//dbMgr->SaveCurrentQuoteItem(std::move(quoteItem));
+	SmMongoDBManager* mongoMgr = SmMongoDBManager::GetInstance();
+	mongoMgr->SaveSise(quoteItem);
+
+	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
+	sessMgr->SendReqUpdateQuote(quoteItem.SymbolCode);
 
 
 	SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
@@ -534,13 +544,15 @@ void SmHdCtrl::OnRcvdAbroadSiseByReq(CString& sTrCode, LONG& nRqID)
 		quoteItem.Volume = 0;
 		quoteItem.Sign = "";
 
+		SmMongoDBManager* mongoMgr = SmMongoDBManager::GetInstance();
+		mongoMgr->SaveSise(quoteItem);
+
+		SmSessionManager* sessMgr = SmSessionManager::GetInstance();
+		sessMgr->SendReqUpdateQuote(quoteItem.SymbolCode);
+
 		//CString msg;
 		msg.Format(_T("symbol = %s, time = %s, h=%s, l=%s, o=%s, c=%s, ratio = %s\n"), strSymCode, strTime, strHigh, strLow, strOpen, strClose, strRatioToPreDay);
 		TRACE(msg);
-
-
-		SmTimeSeriesDBManager* dbMgr = SmTimeSeriesDBManager::GetInstance();
-		dbMgr->SaveCurrentQuoteItem(std::move(quoteItem));
 	}
 }
 
@@ -614,8 +626,11 @@ void SmHdCtrl::OnRcvdAbroadHogaByReq(CString& sTrCode, LONG& nRqID)
 		hoga_data.TotSellCnt = sym->Hoga.TotSellCnt = _ttoi(strTotSellCnt);
 		hoga_data.TotSellQty = sym->Hoga.TotSellQty = _ttoi(strTotSellQty);
 
-		SmTimeSeriesDBManager* dbMgr = SmTimeSeriesDBManager::GetInstance();
-		dbMgr->SaveHogaItem(std::move(hoga_data));
+		SmMongoDBManager* mongoMgr = SmMongoDBManager::GetInstance();
+		mongoMgr->SaveHoga(hoga_data);
+
+		SmSessionManager* sessMgr = SmSessionManager::GetInstance();
+		sessMgr->SendReqUpdateHoga(hoga_data.SymbolCode);
 
 		CString msg;
 		msg.Format(_T("hoga :: time = %s, tot_buy_cnt = %d\n"), sym->Hoga.SymbolCode.c_str(), sym->Hoga.TotBuyCnt);

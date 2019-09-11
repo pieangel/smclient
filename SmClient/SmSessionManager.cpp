@@ -127,6 +127,22 @@ void SmSessionManager::Close()
 	}
 }
 
+void SmSessionManager::SendReqUpdateQuote(std::string symbol_code)
+{
+	json reg_symbol;
+	reg_symbol["req_id"] = SmProtocol::req_update_quote;
+	reg_symbol["symbol_code"] = symbol_code;
+	Send(reg_symbol.dump(4));
+}
+
+void SmSessionManager::SendReqUpdateHoga(std::string symbol_code)
+{
+	json reg_symbol;
+	reg_symbol["req_id"] = SmProtocol::req_update_hoga;
+	reg_symbol["symbol_code"] = symbol_code;
+	Send(reg_symbol.dump(4));
+}
+
 void SmSessionManager::UnregisterAllSymbol()
 {
 	if (!_Session)

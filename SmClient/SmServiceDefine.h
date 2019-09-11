@@ -92,5 +92,9 @@ enum class SmProtocol {
 	// 시세 차트에서 차트 데이터를 받았음을 알리고 클라이언트에게 전송을 종용한다.
 	req_chart_data_resend,
 	// 메인차트에서 차트 데이터 요청이 도착함
-	req_chart_data_from_main_server
+	req_chart_data_from_main_server,
+	// 심볼 시세 업데이트 요청
+	req_update_quote,
+	// 심볼 호가 업데이트 요청
+	req_update_hoga
 };

@@ -280,6 +280,9 @@
     <ClInclude Include="SmWebsocketSession.h">
       <Filter>Server</Filter>
     </ClInclude>
+    <ClInclude Include="SmRealtimeSymbolServiceManager.h">
+      <Filter>Server</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HDCtrl\hdfcommagent.cpp">
@@ -403,6 +406,9 @@
       <Filter>Server</Filter>
     </ClCompile>
     <ClCompile Include="SmWebsocketSession.cpp">
+      <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="SmRealtimeSymbolServiceManager.cpp">
       <Filter>Server</Filter>
     </ClCompile>
   </ItemGroup>

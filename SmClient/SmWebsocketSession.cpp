@@ -118,8 +118,15 @@ void SmWebsocketSession::on_read(beast::error_code ec, std::size_t bytes_transfe
 {
 	boost::ignore_unused(bytes_transferred);
 
-	if (ec)
+	if (ec) {
+		if ((boost::asio::error::eof == ec) ||
+			(boost::asio::error::connection_reset == ec))
+		{
+			_disconnected = true;
+		}
 		return fail(ec, "read");
+	}
+
 	//SmSessionManager* sessMgr = SmSessionManager::GetInstance();
 	//sessMgr->OnMessage(beast::buffers_to_string(buffer_.data()));
 	//buffer_.consume(buffer_.size());
@@ -147,13 +154,19 @@ void SmWebsocketSession::send(boost::shared_ptr<std::string const> const& ss)
 	// Post our work to the strand, this ensures
 	// that the members of `this` will not be
 	// accessed concurrently.
-
-	net::post(
-		ws_.get_executor(),
-		beast::bind_front_handler(
-			&SmWebsocketSession::on_send,
-			shared_from_this(),
-			ss));
+	try {
+		if (!_disconnected) {
+			net::post(
+				ws_.get_executor(),
+				beast::bind_front_handler(
+					&SmWebsocketSession::on_send,
+					shared_from_this(),
+					ss));
+		}
+	}
+	catch (std::exception e) {
+		std::string error = e.what();
+	}
 }
 
 void SmWebsocketSession::on_send(boost::shared_ptr<std::string const> const& ss)

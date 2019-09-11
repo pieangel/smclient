@@ -19,6 +19,8 @@ public:
 	void RequestSiseData(std::string symCode);
 	void OnMessage(std::string message);
 	void Close();
+	void SendReqUpdateQuote(std::string symbol_code);
+	void SendReqUpdateHoga(std::string symbol_code);
 private:
 	SmWebsocketSession* _Session = nullptr;
 	std::set<std::string> _RegSymbolSet;

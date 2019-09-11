@@ -18,6 +18,7 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 class SmWebsocketSession : public std::enable_shared_from_this<SmWebsocketSession>
 {
 private:
+	bool _disconnected = false;
 	tcp::resolver resolver_;
 	websocket::stream<beast::tcp_stream> ws_;
 	beast::flat_buffer buffer_;

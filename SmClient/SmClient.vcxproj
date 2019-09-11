@@ -238,6 +238,7 @@
     <ClInclude Include="SmNetDefine.h" />
     <ClInclude Include="SmProtocolManager.h" />
     <ClInclude Include="SmQuoteDefine.h" />
+    <ClInclude Include="SmRealtimeSymbolServiceManager.h" />
     <ClInclude Include="SmServiceDefine.h" />
     <ClInclude Include="SmWebsocketSession.h" />
     <ClInclude Include="SmSessionManager.h" />
@@ -310,6 +311,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SmProtocolManager.cpp" />
+    <ClCompile Include="SmRealtimeSymbolServiceManager.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="SmWebsocketSession.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>

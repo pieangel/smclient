@@ -267,6 +267,203 @@ void SmMongoDBManager::SaveChartData(SmChartData* chart_data)
 	}
 }
 
+void SmMongoDBManager::SaveHoga(SmHoga hoga)
+{
+	try
+	{
+		auto db = (*_Client)["andromeda"];
+		using namespace bsoncxx;
+
+		std::string symbol_code = hoga.SymbolCode;
+
+		// 먼저 시장이 있는지 검색한다. 
+		// 그리고 시장 속에 상품이 있는지 검색한다.
+		mongocxx::collection hoga_coll = db["hoga"];
+
+		builder::stream::document builder{};
+
+		bsoncxx::stdx::optional<bsoncxx::document::value> found_hoga =
+			hoga_coll.find_one(bsoncxx::builder::stream::document{} << "symbol_code" << symbol_code << finalize);
+		// 차트 데이터가 없을 경우
+		if (!found_hoga) {
+			// 차트 데이터에 대한 정보를 저장한다.
+			bsoncxx::document::value doc_chart_data = builder
+				<< "symbol_code" << symbol_code
+				<< "buy_price1" << hoga.Ary[0].BuyPrice
+				<< "buy_qty1" << hoga.Ary[0].BuyQty
+				<< "buy_cnt1" << hoga.Ary[0].BuyCnt
+				<< "sell_price1" << hoga.Ary[0].SellPrice
+				<< "sell_qty1" << hoga.Ary[0].SellQty
+				<< "sell_cnt1" << hoga.Ary[0].SellCnt
+
+				<< "buy_price2" << hoga.Ary[1].BuyPrice
+				<< "buy_qty2" << hoga.Ary[1].BuyQty
+				<< "buy_cnt2" << hoga.Ary[1].BuyCnt
+				<< "sell_price2" << hoga.Ary[1].SellPrice
+				<< "sell_qty2" << hoga.Ary[1].SellQty
+				<< "sell_cnt2" << hoga.Ary[1].SellCnt
+
+				<< "buy_price3" << hoga.Ary[2].BuyPrice
+				<< "buy_qty3" << hoga.Ary[2].BuyQty
+				<< "buy_cnt3" << hoga.Ary[2].BuyCnt
+				<< "sell_price3" << hoga.Ary[2].SellPrice
+				<< "sell_qty3" << hoga.Ary[2].SellQty
+				<< "sell_cnt3" << hoga.Ary[2].SellCnt
+
+				<< "buy_price4" << hoga.Ary[3].BuyPrice
+				<< "buy_qty4" << hoga.Ary[3].BuyQty
+				<< "buy_cnt4" << hoga.Ary[3].BuyCnt
+				<< "sell_price4" << hoga.Ary[3].SellPrice
+				<< "sell_qty4" << hoga.Ary[3].SellQty
+				<< "sell_cnt4" << hoga.Ary[3].SellCnt
+
+				<< "buy_price5" << hoga.Ary[4].BuyPrice
+				<< "buy_qty5" << hoga.Ary[4].BuyQty
+				<< "buy_cnt5" << hoga.Ary[4].BuyCnt
+				<< "sell_price5" << hoga.Ary[4].SellPrice
+				<< "sell_qty5" << hoga.Ary[4].SellQty
+				<< "sell_cnt5" << hoga.Ary[4].SellCnt
+
+				<< "tot_buy_qty" << hoga.TotBuyQty
+				<< "tot_buy_cnt" << hoga.TotBuyCnt
+				<< "tot_sell_qty" << hoga.TotSellQty
+				<< "tot_sell_cnt" << hoga.TotSellCnt
+				<< "date" << hoga.DomesticDate
+				<< "time" << hoga.DomesticTime
+
+				<< bsoncxx::builder::stream::finalize;
+
+			auto res = db["hoga"].insert_one(std::move(doc_chart_data));
+		}
+		else {
+			hoga_coll.update_one(bsoncxx::builder::stream::document{} << "symbol_code" << symbol_code << finalize,
+				bsoncxx::builder::stream::document{} << "$set"
+				<< open_document
+				<< "buy_price1" << hoga.Ary[0].BuyPrice
+				<< "buy_qty1" << hoga.Ary[0].BuyQty
+				<< "buy_cnt1" << hoga.Ary[0].BuyCnt
+				<< "sell_price1" << hoga.Ary[0].SellPrice
+				<< "sell_qty1" << hoga.Ary[0].SellQty
+				<< "sell_cnt1" << hoga.Ary[0].SellCnt
+
+				<< "buy_price2" << hoga.Ary[1].BuyPrice
+				<< "buy_qty2" << hoga.Ary[1].BuyQty
+				<< "buy_cnt2" << hoga.Ary[1].BuyCnt
+				<< "sell_price2" << hoga.Ary[1].SellPrice
+				<< "sell_qty2" << hoga.Ary[1].SellQty
+				<< "sell_cnt2" << hoga.Ary[1].SellCnt
+
+				<< "buy_price3" << hoga.Ary[2].BuyPrice
+				<< "buy_qty3" << hoga.Ary[2].BuyQty
+				<< "buy_cnt3" << hoga.Ary[2].BuyCnt
+				<< "sell_price3" << hoga.Ary[2].SellPrice
+				<< "sell_qty3" << hoga.Ary[2].SellQty
+				<< "sell_cnt3" << hoga.Ary[2].SellCnt
+
+				<< "buy_price4" << hoga.Ary[3].BuyPrice
+				<< "buy_qty4" << hoga.Ary[3].BuyQty
+				<< "buy_cnt4" << hoga.Ary[3].BuyCnt
+				<< "sell_price4" << hoga.Ary[3].SellPrice
+				<< "sell_qty4" << hoga.Ary[3].SellQty
+				<< "sell_cnt4" << hoga.Ary[3].SellCnt
+
+				<< "buy_price5" << hoga.Ary[4].BuyPrice
+				<< "buy_qty5" << hoga.Ary[4].BuyQty
+				<< "buy_cnt5" << hoga.Ary[4].BuyCnt
+				<< "sell_price5" << hoga.Ary[4].SellPrice
+				<< "sell_qty5" << hoga.Ary[4].SellQty
+				<< "sell_cnt5" << hoga.Ary[4].SellCnt
+
+				<< "tot_buy_qty" << hoga.TotBuyQty
+				<< "tot_buy_cnt" << hoga.TotBuyCnt
+				<< "tot_sell_qty" << hoga.TotSellQty
+				<< "tot_sell_cnt" << hoga.TotSellCnt
+				<< "date" << hoga.DomesticDate
+				<< "time" << hoga.DomesticTime
+				<< close_document << finalize);
+		}
+	}
+	catch (std::exception e) {
+		std::string error;
+		error = e.what();
+	}
+}
+
+/*
+
+	SmQuote quoteItem;
+	quoteItem.SymbolCode = strSymCode.Trim();
+	quoteItem.OriginTime = strTime;
+	quoteItem.SignToPreDay = strSignToPreDay.Trim();
+	quoteItem.GapFromPreDay = _ttoi(strToPreDay);
+	quoteItem.RatioToPreday = strRatioToPreDay.Trim();
+	quoteItem.Close = _ttoi(strClose);
+	quoteItem.Open = _ttoi(strOpen);
+	quoteItem.High = _ttoi(strHigh);
+	quoteItem.Low = _ttoi(strLow);
+	quoteItem.Volume= _ttoi(strVolume);
+	quoteItem.Sign = strSign.Trim();
+*/
+
+void SmMongoDBManager::SaveSise(SmQuote quote)
+{
+	try
+	{
+		auto db = (*_Client)["andromeda"];
+		using namespace bsoncxx;
+
+		std::string symbol_code = quote.SymbolCode;
+
+		// 먼저 시장이 있는지 검색한다. 
+		// 그리고 시장 속에 상품이 있는지 검색한다.
+		mongocxx::collection quote_coll = db["quote"];
+
+		builder::stream::document builder{};
+
+		bsoncxx::stdx::optional<bsoncxx::document::value> found_quote =
+			quote_coll.find_one(bsoncxx::builder::stream::document{} << "symbol_code" << symbol_code << finalize);
+		
+		if (!found_quote) {
+			// 차트 데이터에 대한 정보를 저장한다.
+			bsoncxx::document::value doc_chart_data = builder
+				<< "symbol_code" << symbol_code
+				<< "sign_to_preday" << quote.SignToPreDay
+				<< "gap_from_preday" << quote.GapFromPreDay
+				<< "ratio_to_preday" << quote.RatioToPreday
+								
+				<< "open" << quote.Open
+				<< "high" << quote.High
+				<< "low" << quote.Low
+				<< "close" << quote.Close
+				
+				<< bsoncxx::builder::stream::finalize;
+
+			auto res = db["quote"].insert_one(std::move(doc_chart_data));
+		}
+		else {
+			quote_coll.update_one(bsoncxx::builder::stream::document{} << "symbol_code" << symbol_code << finalize,
+				bsoncxx::builder::stream::document{} << "$set"
+				<< open_document
+
+				<< "symbol_code" << symbol_code
+				<< "sign_to_preday" << quote.SignToPreDay
+				<< "gap_from_preday" << quote.GapFromPreDay
+				<< "ratio_to_preday" << quote.RatioToPreday
+				
+				<< "open" << quote.Open
+				<< "high" << quote.High
+				<< "low" << quote.Low
+				<< "close" << quote.Close
+
+				<< close_document << finalize);
+		}
+	}
+	catch (std::exception e) {
+		std::string error;
+		error = e.what();
+	}
+}
+
 void SmMongoDBManager::SaveMarketsToDatabase()
 {
 	try

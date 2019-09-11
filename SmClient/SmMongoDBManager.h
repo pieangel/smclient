@@ -1,6 +1,8 @@
 #pragma once
 #include "Global/TemplateSingleton.h"
 #include <mongocxx\config\config.hpp>
+#include "SmHogaDefine.h"
+#include "SmQuoteDefine.h"
 namespace mongocxx
 {
 	MONGOCXX_INLINE_NAMESPACE_BEGIN
@@ -18,6 +20,8 @@ public:
 	void Test();
 	void ReadSymbol();
 	void SaveChartData(SmChartData* chart_data);
+	void SaveHoga(SmHoga hoga);
+	void SaveSise(SmQuote quote);
 private:
 	void SaveMarketsToDatabase();
 	void SaveSymbolsToDatabase();

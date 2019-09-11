@@ -16,6 +16,7 @@
 #include "SmHdClient.h"
 #include "SmMongoDBManager.h"
 #include "SmMarketManager.h"
+#include "SmRealtimeSymbolServiceManager.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -569,4 +570,7 @@ void CMainFrame::OnServerRegistersocket()
 {
 	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
 	sessMgr->RegisterSiseSocket();
+
+	SmRealtimeSymbolServiceManager* rtsMgr = SmRealtimeSymbolServiceManager::GetInstance();
+	rtsMgr->RegisterAllRecentSymbol();
 }
