@@ -282,6 +282,67 @@ void SmMongoDBManager::SaveHoga(SmHoga hoga)
 
 		builder::stream::document builder{};
 
+		/*
+		bsoncxx::stdx::optional<bsoncxx::document::value> found_hoga =
+			hoga_coll.find_one(bsoncxx::builder::stream::document{} << "symbol_code" << symbol_code << finalize);
+		// 호가 데이터가 없을 경우
+		if (!found_hoga) {
+			auto in_array = builder << "hoga_item" << builder::stream::open_array;
+			for (size_t j = 0; j < 5; ++j) {
+				in_array = in_array << builder::stream::open_document
+					<< "item_index" << (int)j
+					<< "buy_price" << hoga.Ary[j].BuyPrice
+					<< "buy_qty" << hoga.Ary[j].BuyQty
+					<< "buy_cnt" << hoga.Ary[j].BuyCnt
+					<< "sell_price" << hoga.Ary[j].SellPrice
+					<< "sell_qty" << hoga.Ary[j].SellQty
+					<< "sell_cnt" << hoga.Ary[j].SellCnt
+					<< builder::stream::close_document;
+			}
+			auto after_array = in_array << builder::stream::close_array;
+			after_array 
+				<< "tot_buy_qty" << hoga.TotBuyQty
+				<< "tot_buy_cnt" << hoga.TotBuyCnt
+				<< "tot_sell_qty" << hoga.TotSellQty
+				<< "tot_sell_cnt" << hoga.TotSellCnt
+				<< "date" << hoga.DomesticDate
+				<< "time" << hoga.DomesticTime
+				<< bsoncxx::builder::stream::finalize;
+
+			bsoncxx::document::value doc = after_array << builder::stream::finalize;
+			auto res = db["hoga"].insert_one(std::move(doc));
+		}
+
+		else {
+			auto in_array = builder << "hoga_item" << builder::stream::open_array;
+			for (size_t j = 0; j < 5; ++j) {
+				in_array = in_array << builder::stream::open_document
+					<< "item_index" << (int)j
+					<< "buy_price" << hoga.Ary[j].BuyPrice
+					<< "buy_qty" << hoga.Ary[j].BuyQty
+					<< "buy_cnt" << hoga.Ary[j].BuyCnt
+					<< "sell_price" << hoga.Ary[j].SellPrice
+					<< "sell_qty" << hoga.Ary[j].SellQty
+					<< "sell_cnt" << hoga.Ary[j].SellCnt
+					<< builder::stream::close_document;
+			}
+			auto after_array = in_array << builder::stream::close_array;
+			after_array
+				<< "tot_buy_qty" << hoga.TotBuyQty
+				<< "tot_buy_cnt" << hoga.TotBuyCnt
+				<< "tot_sell_qty" << hoga.TotSellQty
+				<< "tot_sell_cnt" << hoga.TotSellCnt
+				<< "date" << hoga.DomesticDate
+				<< "time" << hoga.DomesticTime
+				<< bsoncxx::builder::stream::finalize;
+
+			hoga_coll.update_one(bsoncxx::builder::stream::document{} << "symbol_code" << symbol_code << finalize,
+				bsoncxx::builder::stream::document{} << "$set"
+				<< open_document
+				<< after_array << close_document << finalize);
+		}
+		*/
+		
 		bsoncxx::stdx::optional<bsoncxx::document::value> found_hoga =
 			hoga_coll.find_one(bsoncxx::builder::stream::document{} << "symbol_code" << symbol_code << finalize);
 		// 차트 데이터가 없을 경우
@@ -289,6 +350,7 @@ void SmMongoDBManager::SaveHoga(SmHoga hoga)
 			// 차트 데이터에 대한 정보를 저장한다.
 			bsoncxx::document::value doc_chart_data = builder
 				<< "symbol_code" << symbol_code
+
 				<< "buy_price1" << hoga.Ary[0].BuyPrice
 				<< "buy_qty1" << hoga.Ary[0].BuyQty
 				<< "buy_cnt1" << hoga.Ary[0].BuyCnt
@@ -328,8 +390,8 @@ void SmMongoDBManager::SaveHoga(SmHoga hoga)
 				<< "tot_buy_cnt" << hoga.TotBuyCnt
 				<< "tot_sell_qty" << hoga.TotSellQty
 				<< "tot_sell_cnt" << hoga.TotSellCnt
-				<< "date" << hoga.DomesticDate
-				<< "time" << hoga.DomesticTime
+				<< "domestic_date" << hoga.DomesticDate
+				<< "domestic_time" << hoga.DomesticTime
 
 				<< bsoncxx::builder::stream::finalize;
 
@@ -339,6 +401,8 @@ void SmMongoDBManager::SaveHoga(SmHoga hoga)
 			hoga_coll.update_one(bsoncxx::builder::stream::document{} << "symbol_code" << symbol_code << finalize,
 				bsoncxx::builder::stream::document{} << "$set"
 				<< open_document
+				<< "symbol_code" << symbol_code
+
 				<< "buy_price1" << hoga.Ary[0].BuyPrice
 				<< "buy_qty1" << hoga.Ary[0].BuyQty
 				<< "buy_cnt1" << hoga.Ary[0].BuyCnt
@@ -378,10 +442,11 @@ void SmMongoDBManager::SaveHoga(SmHoga hoga)
 				<< "tot_buy_cnt" << hoga.TotBuyCnt
 				<< "tot_sell_qty" << hoga.TotSellQty
 				<< "tot_sell_cnt" << hoga.TotSellCnt
-				<< "date" << hoga.DomesticDate
-				<< "time" << hoga.DomesticTime
+				<< "domestic_date" << hoga.DomesticDate
+				<< "domestic_time" << hoga.DomesticTime
 				<< close_document << finalize);
 		}
+		
 	}
 	catch (std::exception e) {
 		std::string error;
@@ -389,21 +454,6 @@ void SmMongoDBManager::SaveHoga(SmHoga hoga)
 	}
 }
 
-/*
-
-	SmQuote quoteItem;
-	quoteItem.SymbolCode = strSymCode.Trim();
-	quoteItem.OriginTime = strTime;
-	quoteItem.SignToPreDay = strSignToPreDay.Trim();
-	quoteItem.GapFromPreDay = _ttoi(strToPreDay);
-	quoteItem.RatioToPreday = strRatioToPreDay.Trim();
-	quoteItem.Close = _ttoi(strClose);
-	quoteItem.Open = _ttoi(strOpen);
-	quoteItem.High = _ttoi(strHigh);
-	quoteItem.Low = _ttoi(strLow);
-	quoteItem.Volume= _ttoi(strVolume);
-	quoteItem.Sign = strSign.Trim();
-*/
 
 void SmMongoDBManager::SaveSise(SmQuote quote)
 {
@@ -430,6 +480,7 @@ void SmMongoDBManager::SaveSise(SmQuote quote)
 				<< "sign_to_preday" << quote.SignToPreDay
 				<< "gap_from_preday" << quote.GapFromPreDay
 				<< "ratio_to_preday" << quote.RatioToPreday
+				<< "acc_volume" << quote.accVolume
 								
 				<< "open" << quote.Open
 				<< "high" << quote.High
@@ -449,6 +500,7 @@ void SmMongoDBManager::SaveSise(SmQuote quote)
 				<< "sign_to_preday" << quote.SignToPreDay
 				<< "gap_from_preday" << quote.GapFromPreDay
 				<< "ratio_to_preday" << quote.RatioToPreday
+				<< "acc_volume" << quote.accVolume
 				
 				<< "open" << quote.Open
 				<< "high" << quote.High
@@ -456,6 +508,65 @@ void SmMongoDBManager::SaveSise(SmQuote quote)
 				<< "close" << quote.Close
 
 				<< close_document << finalize);
+		}
+	}
+	catch (std::exception e) {
+		std::string error;
+		error = e.what();
+	}
+}
+
+void SmMongoDBManager::SaveChartDataItem(SmChartDataItem item)
+{
+	try
+	{
+
+		auto db = (*_Client)["andromeda"];
+		using namespace bsoncxx;
+
+		std::string data_key = item.GetDataKey();
+
+		// 먼저 시장이 있는지 검색한다. 
+		// 그리고 시장 속에 상품이 있는지 검색한다.
+		mongocxx::collection chart_coll = db["chart_data"];
+
+		builder::stream::document builder{};
+
+		bsoncxx::stdx::optional<bsoncxx::document::value> found_chart_data =
+			chart_coll.find_one(bsoncxx::builder::stream::document{} << "data_key" << item.GetDataKey() << finalize);
+		// 차트 데이터가 없을 경우
+		if (found_chart_data) {
+			// 차트 데이터만 따로 저장한다.
+			mongocxx::collection data_coll = db[data_key];
+			std::string date_time = item.date + item.time;
+			bsoncxx::stdx::optional<bsoncxx::document::value> found_item = data_coll.find_one(bsoncxx::builder::stream::document{} << "date_time" << date_time << finalize);
+			// 같은 날짜가 없으면 새로 추가 한다.
+			if (!found_item) {
+				bsoncxx::document::value doc_chart_data_item = builder
+					<< "date_time" << date_time
+					<< "local_date" << item.date
+					<< "local_time" << item.time
+					<< "o" << item.o
+					<< "h" << item.h
+					<< "l" << item.l
+					<< "c" << item.c
+					<< "v" << item.v
+					<< bsoncxx::builder::stream::finalize;
+				auto res = db[data_key].insert_one(std::move(doc_chart_data_item));
+			}
+			else { // 같은 날짜가 있으면 업데이트 한다.
+				data_coll.update_one(bsoncxx::builder::stream::document{} << "date_time" << date_time << finalize,
+					bsoncxx::builder::stream::document{} << "$set"
+					<< open_document
+					<< "local_date" << item.date
+					<< "local_time" << item.time
+					<< "o" << item.o
+					<< "h" << item.h
+					<< "l" << item.l
+					<< "c" << item.c
+					<< "v" << item.v
+					<< close_document << finalize);
+			}
 		}
 	}
 	catch (std::exception e) {
@@ -505,6 +616,8 @@ void SmMongoDBManager::SaveMarketsToDatabase()
 				auto after_array = in_array << builder::stream::close_array;
 				after_array << "market_index" << (int)i
 					<< "market_name" << SmUtfUtil::AnsiToUtf8((char*)market->Name().c_str());
+
+			
 				bsoncxx::document::value doc = after_array << builder::stream::finalize;
 
 				bsoncxx::document::view view = doc.view();

@@ -3,6 +3,7 @@
 #include <string>
 #include <set>
 class SmWebsocketSession;
+class SmSymbol;
 class SmSessionManager : public TemplateSingleton<SmSessionManager>
 {
 public:
@@ -21,6 +22,8 @@ public:
 	void Close();
 	void SendReqUpdateQuote(std::string symbol_code);
 	void SendReqUpdateHoga(std::string symbol_code);
+	void SendReqUpdateQuote(SmSymbol* symbol);
+	void SendReqUpdateHoga(SmSymbol* symbol);
 private:
 	SmWebsocketSession* _Session = nullptr;
 	std::set<std::string> _RegSymbolSet;

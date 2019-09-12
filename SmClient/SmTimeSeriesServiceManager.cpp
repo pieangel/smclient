@@ -202,6 +202,7 @@ void SmTimeSeriesServiceManager::OnCompleteChartData(SmChartDataRequest data_req
 	//RegisterCycleChartDataRequest(data_req);
 	// 차트데이터를 보낸다.
 	//SendChartData(std::move(data_req), chart_data);
+	// 먼저 데이터베이스에 차트데이터를 저장한다.
 	SmMongoDBManager* mongoMgr = SmMongoDBManager::GetInstance();
 	mongoMgr->SaveChartData(chart_data);
 	// 여기서 서버에 차트 데이터가 도착했음을 알린다.
@@ -215,6 +216,24 @@ void SmTimeSeriesServiceManager::OnCompleteChartData(SmChartDataRequest data_req
 	send_object["cycle"] = data_req.cycle;
 	send_object["count"] = data_req.count;
 	std::string content = send_object.dump();
+	// 서버에 세션 아이와 함께 클라이언트에게 차트데이터가 수집되었음을 알리라고 보낸다.
+	// 서버에 이 메시지가 도착하면 서버는 데이터베이스에서 데이터를 가져와 세션 아이디를 가진 소켓으로 데이터를 보낸다.
+	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
+	sessMgr->Send(content);
+	// 주기데이터를 등록해 준다.
+	RegisterTimer(chart_data);
+}
+
+void SmTimeSeriesServiceManager::OnCompleteChartCycleData(SmChartDataRequest data_req)
+{
+	json send_object;
+	send_object["req_id"] = SmProtocol::req_update_chart_data;
+	send_object["symbol_code"] = data_req.symbolCode;
+	send_object["chart_type"] = (int)data_req.chartType;
+	send_object["cycle"] = data_req.cycle;
+	std::string content = send_object.dump();
+	// 서버에 세션 아이와 함께 클라이언트에게 차트데이터가 수집되었음을 알리라고 보낸다.
+	// 서버에 이 메시지가 도착하면 서버는 데이터베이스에서 데이터를 가져와 세션 아이디를 가진 소켓으로 데이터를 보낸다.
 	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
 	sessMgr->Send(content);
 }
@@ -270,21 +289,30 @@ void SmTimeSeriesServiceManager::RegisterTimer(SmChartData* chartData)
 {
 	if (!chartData)
 		return;
-	// 주기 데이터 목록에서 찾아 봐서 없으면 수행하지 않는다.
-	auto it = _CycleDataReqTimerMap.find(chartData->GetDataKey());
-	if (it != _CycleDataReqTimerMap.end())
-		return;
-	std::pair<int, int> timer_times = chartData->GetCycleByTimeDif();
-	// 주기가 0이면 오류 이므로 처리하지 않는다.
-	if (timer_times.first == 0)
+	// 주기 데이터는 분 데이터만 처리한다. 
+	if (chartData->ChartType() != SmChartType::MIN)
 		return;
 	// 대기시간 
-	int waitTime = timer_times.second;
+	int waitTime = 0;
+	int cycle_time = chartData->Cycle() * 60;
+	// 주기가 60분을 넘으면 60분마다 갱신한다.
+	if (chartData->Cycle() > 60) {
+		cycle_time = 60 * 60;
+	}
+	else {
+		std::vector<int> date_time = SmUtil::GetLocalDateTime();
+		int cur_min = date_time[4];
+		int total_seconds = cur_min * 60 + date_time[5];
+		int mod_seconds = total_seconds % (chartData->Cycle() * 60);
+		int wait_seconds = chartData->Cycle() * 60 - mod_seconds;
+		waitTime = wait_seconds;
+	}
+	
 	// 주기를 초로 환산해서 대입한다.
 	// Add to the timer.
-	//auto id = _Timer.add(seconds(waitTime), std::bind(&SmChartData::OnTimer, chartData), seconds(timer_times.first));
+	auto id = _Timer.add(seconds(waitTime), std::bind(&SmChartData::OnTimer, chartData), seconds(cycle_time));
 	// Add to the request map.
-	//_CycleDataReqTimerMap[chartData->GetDataKey()] = id;
+	_CycleDataReqTimerMap[chartData->GetDataKey()] = id;
 }
 
 void SmTimeSeriesServiceManager::SendChartDataFromDB(SmChartDataRequest&& data_req)

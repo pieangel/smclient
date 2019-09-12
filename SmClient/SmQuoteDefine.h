@@ -75,4 +75,6 @@ struct	SmQuote
 	/// </summary>
 	int Volume;
 	std::string Sign;
+	// 누적거래량
+	int accVolume;
 };

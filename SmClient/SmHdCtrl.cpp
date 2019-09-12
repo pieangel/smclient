@@ -426,10 +426,10 @@ void SmHdCtrl::OnRcvdAbroadHoga(CString& strKey, LONG& nRealType)
 	hoga_data.TotSellQty = sym->Hoga.TotSellQty = _ttoi(strTotSellQty);
 
 	SmMongoDBManager* mongoMgr = SmMongoDBManager::GetInstance();
-	mongoMgr->SaveHoga(hoga_data);
+	//mongoMgr->SaveHoga(hoga_data);
 
 	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
-	sessMgr->SendReqUpdateHoga(hoga_data.SymbolCode);
+	sessMgr->SendReqUpdateHoga(sym);
 
 	//TRACE(sym->Hoga.Time.c_str());
 
@@ -455,6 +455,7 @@ void SmHdCtrl::OnRcvdAbroadSise(CString& strKey, LONG& nRealType)
 	CString strLow = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "저가");
 	CString strVolume = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "체결량");
 	CString strSign = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "체결구분");
+	CString strAccVol = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "누적거래량");
 
 	SmQuote quoteItem;
 	quoteItem.SymbolCode = strSymCode.Trim();
@@ -468,14 +469,11 @@ void SmHdCtrl::OnRcvdAbroadSise(CString& strKey, LONG& nRealType)
 	quoteItem.Low = _ttoi(strLow);
 	quoteItem.Volume= _ttoi(strVolume);
 	quoteItem.Sign = strSign.Trim();
+	quoteItem.accVolume = _ttoi(strAccVol);
 
 
 	SmMongoDBManager* mongoMgr = SmMongoDBManager::GetInstance();
-	mongoMgr->SaveSise(quoteItem);
-
-	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
-	sessMgr->SendReqUpdateQuote(quoteItem.SymbolCode);
-
+	//mongoMgr->SaveSise(quoteItem);
 
 	SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 	SmSymbol* sym = symMgr->FindSymbol((LPCTSTR)strSymCode.Trim());
@@ -489,6 +487,11 @@ void SmHdCtrl::OnRcvdAbroadSise(CString& strKey, LONG& nRealType)
 	sym->Quote.GapFromPreDay = _ttoi(strToPreDay);
 	sym->Quote.RatioToPreday = strRatioToPreDay.Trim();
 	sym->Quote.SignToPreDay = strSignToPreDay;
+	sym->Quote.accVolume = _ttoi(strAccVol);
+
+	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
+	//sessMgr->SendReqUpdateQuote(quoteItem.SymbolCode);
+	sessMgr->SendReqUpdateQuote(sym);
 
 	CString msg;
 	msg.Format(_T("symbol = %s, time = %s, h=%s, l=%s, o=%s, c=%s, v=%s, ratio = %s\n"), strSymCode, strTime, strHigh, strLow, strOpen, strClose, strVolume, strRatioToPreDay);
@@ -517,6 +520,7 @@ void SmHdCtrl::OnRcvdAbroadSiseByReq(CString& sTrCode, LONG& nRqID)
 		CString strOpen = m_CommAgent.CommGetData(sTrCode, nRqID, "OutRec1", 0, "시가");
 		CString strHigh = m_CommAgent.CommGetData(sTrCode, nRqID, "OutRec1", 0, "고가");
 		CString strLow = m_CommAgent.CommGetData(sTrCode, nRqID, "OutRec1", 0, "저가");
+		CString strAccVol = m_CommAgent.CommGetData(sTrCode, nRqID, "OutRec1", 0, "누적거래량");
 
 		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 		SmSymbol* sym = symMgr->FindSymbol((LPCTSTR)strSymCode.Trim());
@@ -530,6 +534,7 @@ void SmHdCtrl::OnRcvdAbroadSiseByReq(CString& sTrCode, LONG& nRqID)
 		sym->Quote.GapFromPreDay = _ttoi(strToPreDay);
 		sym->Quote.RatioToPreday = strRatioToPreDay.Trim();
 		sym->Quote.SignToPreDay = strSignToPreDay;
+		sym->Quote.accVolume = _ttoi(strAccVol);
 
 		SmQuote quoteItem;
 		quoteItem.SymbolCode = strSymCode.Trim();
@@ -543,12 +548,14 @@ void SmHdCtrl::OnRcvdAbroadSiseByReq(CString& sTrCode, LONG& nRqID)
 		quoteItem.Low = _ttoi(strLow);
 		quoteItem.Volume = 0;
 		quoteItem.Sign = "";
+		quoteItem.accVolume = _ttoi(strAccVol);
 
 		SmMongoDBManager* mongoMgr = SmMongoDBManager::GetInstance();
-		mongoMgr->SaveSise(quoteItem);
+		//mongoMgr->SaveSise(quoteItem);
 
 		SmSessionManager* sessMgr = SmSessionManager::GetInstance();
-		sessMgr->SendReqUpdateQuote(quoteItem.SymbolCode);
+		//sessMgr->SendReqUpdateQuote(quoteItem.SymbolCode);
+		sessMgr->SendReqUpdateQuote(sym);
 
 		//CString msg;
 		msg.Format(_T("symbol = %s, time = %s, h=%s, l=%s, o=%s, c=%s, ratio = %s\n"), strSymCode, strTime, strHigh, strLow, strOpen, strClose, strRatioToPreDay);
@@ -627,10 +634,10 @@ void SmHdCtrl::OnRcvdAbroadHogaByReq(CString& sTrCode, LONG& nRqID)
 		hoga_data.TotSellQty = sym->Hoga.TotSellQty = _ttoi(strTotSellQty);
 
 		SmMongoDBManager* mongoMgr = SmMongoDBManager::GetInstance();
-		mongoMgr->SaveHoga(hoga_data);
+		//mongoMgr->SaveHoga(hoga_data);
 
 		SmSessionManager* sessMgr = SmSessionManager::GetInstance();
-		sessMgr->SendReqUpdateHoga(hoga_data.SymbolCode);
+		sessMgr->SendReqUpdateHoga(sym);
 
 		CString msg;
 		msg.Format(_T("hoga :: time = %s, tot_buy_cnt = %d\n"), sym->Hoga.SymbolCode.c_str(), sym->Hoga.TotBuyCnt);
@@ -682,8 +689,11 @@ void SmHdCtrl::OnRcvdAbroadChartData(CString& sTrCode, LONG& nRqID)
 		data.v = _ttoi(strVol);
 		if (req.reqType == SmChartDataReqestType::FIRST)
 			chart_data->PushChartDataItemToBack(data);
-		else
-			chart_data->UpdateChartData(data);
+		else {
+			// 여기서 데이터 베이스를 업데이트 한다.
+			SmMongoDBManager* mongoMgr = SmMongoDBManager::GetInstance();
+			mongoMgr->SaveChartDataItem(data);
+		}
 	}
 
 	// 차트 데이터 수신 요청 목록에서 제거한다.
@@ -691,9 +701,12 @@ void SmHdCtrl::OnRcvdAbroadChartData(CString& sTrCode, LONG& nRqID)
 	// 주기데이터가 도착했음을 알린다.
 	if (chart_data) {
 		if (nRepeatCnt == chart_data->CycleDataSize()) {
-			chart_data->OnChartDataUpdated();
+			// 차트 데이터 수신 완료를 알릴다.
+			SmTimeSeriesServiceManager* tsSvcMgr = SmTimeSeriesServiceManager::GetInstance();
+			tsSvcMgr->OnCompleteChartCycleData(req);
 		}
 		else {
+			// 아직 처리되지 못한 데이터는 큐를 통해서 처리한다.
 			RequestChartDataFromQ();
 			// 차트 데이터 수신 완료를 알릴다.
 			SmTimeSeriesServiceManager* tsSvcMgr = SmTimeSeriesServiceManager::GetInstance();

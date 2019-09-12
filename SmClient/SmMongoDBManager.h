@@ -3,6 +3,7 @@
 #include <mongocxx\config\config.hpp>
 #include "SmHogaDefine.h"
 #include "SmQuoteDefine.h"
+#include "SmChartDefine.h"
 namespace mongocxx
 {
 	MONGOCXX_INLINE_NAMESPACE_BEGIN
@@ -22,6 +23,7 @@ public:
 	void SaveChartData(SmChartData* chart_data);
 	void SaveHoga(SmHoga hoga);
 	void SaveSise(SmQuote quote);
+	void SaveChartDataItem(SmChartDataItem item);
 private:
 	void SaveMarketsToDatabase();
 	void SaveSymbolsToDatabase();

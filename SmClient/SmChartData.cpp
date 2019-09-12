@@ -160,7 +160,7 @@ void SmChartData::PushChartDataItemToBack(SmChartDataItem data)
 	//msg.Format(_T("pushed data :: size = %d, code = %s, date = %s, time = %s, o = %d, h = %d, l = %d, c = %d, v = %d\n"), _DataItemList.size(), SymbolCode().c_str(), data.date.c_str(), data.time.c_str(), data.o, data.h, data.l, data.c, data.v);
 	//TRACE(msg);
 
-	GetCycleByTimeDif();
+	//GetCycleByTimeDif();
 }
 
 void SmChartData::PushChartDataItemToFront(SmChartDataItem data)
@@ -248,5 +248,5 @@ void SmChartData::RemoveUser(std::string user_id)
 
 void SmChartData::OnTimer()
 {
-	//GetCyclicDataFromServer();
+	GetCyclicDataFromServer();
 }

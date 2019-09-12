@@ -5,6 +5,7 @@
 #include "Json/json.hpp"
 #include "SmErrorHandler.h"
 #include "SmServiceDefine.h"
+#include "SmSymbol.h"
 using namespace nlohmann;
 SmSessionManager::SmSessionManager()
 {
@@ -135,12 +136,28 @@ void SmSessionManager::SendReqUpdateQuote(std::string symbol_code)
 	Send(reg_symbol.dump(4));
 }
 
+void SmSessionManager::SendReqUpdateQuote(SmSymbol* symbol)
+{
+	if (!symbol)
+		return;
+	std::string content = symbol->GetQuoteByJson();
+	Send(content);
+}
+
 void SmSessionManager::SendReqUpdateHoga(std::string symbol_code)
 {
 	json reg_symbol;
 	reg_symbol["req_id"] = SmProtocol::req_update_hoga;
 	reg_symbol["symbol_code"] = symbol_code;
 	Send(reg_symbol.dump(4));
+}
+
+void SmSessionManager::SendReqUpdateHoga(SmSymbol* symbol)
+{
+	if (!symbol)
+		return;
+	std::string content = symbol->GetHogaByJson();
+	Send(content);
 }
 
 void SmSessionManager::UnregisterAllSymbol()

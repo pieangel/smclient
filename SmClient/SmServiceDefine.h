@@ -96,5 +96,7 @@ enum class SmProtocol {
 	// 심볼 시세 업데이트 요청
 	req_update_quote,
 	// 심볼 호가 업데이트 요청
-	req_update_hoga
+	req_update_hoga,
+	// 차트데이터가 업데이트 되었음을 알린다.
+	req_update_chart_data
 };
