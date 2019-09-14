@@ -11,6 +11,7 @@
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>
 #include <mongocxx/uri.hpp>
+#include <mongocxx/pool.hpp>
 #include <string>
 #include <iostream>
 #include "SmMarketManager.h"
@@ -50,6 +51,11 @@ SmMongoDBManager::~SmMongoDBManager()
 	if (_Instance) {
 		delete _Instance;
 		_Instance = nullptr;
+	}
+
+	if (_ConnPool) {
+		delete _ConnPool;
+		_ConnPool = nullptr;
 	}
 }
 
@@ -178,7 +184,9 @@ void SmMongoDBManager::SaveChartData(SmChartData* chart_data)
 		if (!chart_data)
 			return;
 
-		auto db = (*_Client)["andromeda"];
+		auto c = _ConnPool->acquire();
+
+		auto db = (*c)["andromeda"];
 		using namespace bsoncxx;
 
 		std::string data_key = chart_data->GetDataKey();
@@ -271,7 +279,9 @@ void SmMongoDBManager::SaveHoga(SmHoga hoga)
 {
 	try
 	{
-		auto db = (*_Client)["andromeda"];
+		auto c = _ConnPool->acquire();
+
+		auto db = (*c)["andromeda"];
 		using namespace bsoncxx;
 
 		std::string symbol_code = hoga.SymbolCode;
@@ -459,7 +469,9 @@ void SmMongoDBManager::SaveSise(SmQuote quote)
 {
 	try
 	{
-		auto db = (*_Client)["andromeda"];
+		auto c = _ConnPool->acquire();
+
+		auto db = (*c)["andromeda"];
 		using namespace bsoncxx;
 
 		std::string symbol_code = quote.SymbolCode;
@@ -521,7 +533,9 @@ void SmMongoDBManager::SaveChartDataItem(SmChartDataItem item)
 	try
 	{
 
-		auto db = (*_Client)["andromeda"];
+		auto c = _ConnPool->acquire();
+
+		auto db = (*c)["andromeda"];
 		using namespace bsoncxx;
 
 		std::string data_key = item.GetDataKey();
@@ -579,7 +593,9 @@ void SmMongoDBManager::SaveMarketsToDatabase()
 {
 	try
 	{
-		auto db = (*_Client)["andromeda"];
+		auto c = _ConnPool->acquire();
+
+		auto db = (*c)["andromeda"];
 		using namespace bsoncxx;
 
 		// 먼저 시장이 있는지 검색한다. 
@@ -653,7 +669,9 @@ void SmMongoDBManager::SaveSymbolsToDatabase()
 {
 	try
 	{
-		auto db = (*_Client)["andromeda"];
+		auto c = _ConnPool->acquire();
+
+		auto db = (*c)["andromeda"];
 		using namespace bsoncxx;
 
 		// 먼저 시장이 있는지 검색한다. 
@@ -705,4 +723,5 @@ void SmMongoDBManager::InitDatabase()
 {
 	_Instance = new mongocxx::instance();
 	_Client = new mongocxx::client(mongocxx::uri{});
+	_ConnPool = new mongocxx::pool(mongocxx::uri{});
 }

@@ -426,7 +426,7 @@ void SmHdCtrl::OnRcvdAbroadHoga(CString& strKey, LONG& nRealType)
 	hoga_data.TotSellQty = sym->Hoga.TotSellQty = _ttoi(strTotSellQty);
 
 	SmMongoDBManager* mongoMgr = SmMongoDBManager::GetInstance();
-	//mongoMgr->SaveHoga(hoga_data);
+	mongoMgr->SaveHoga(hoga_data);
 
 	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
 	sessMgr->SendReqUpdateHoga(sym);
@@ -473,7 +473,7 @@ void SmHdCtrl::OnRcvdAbroadSise(CString& strKey, LONG& nRealType)
 
 
 	SmMongoDBManager* mongoMgr = SmMongoDBManager::GetInstance();
-	//mongoMgr->SaveSise(quoteItem);
+	mongoMgr->SaveSise(quoteItem);
 
 	SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 	SmSymbol* sym = symMgr->FindSymbol((LPCTSTR)strSymCode.Trim());
@@ -551,7 +551,7 @@ void SmHdCtrl::OnRcvdAbroadSiseByReq(CString& sTrCode, LONG& nRqID)
 		quoteItem.accVolume = _ttoi(strAccVol);
 
 		SmMongoDBManager* mongoMgr = SmMongoDBManager::GetInstance();
-		//mongoMgr->SaveSise(quoteItem);
+		mongoMgr->SaveSise(quoteItem);
 
 		SmSessionManager* sessMgr = SmSessionManager::GetInstance();
 		//sessMgr->SendReqUpdateQuote(quoteItem.SymbolCode);
@@ -634,7 +634,7 @@ void SmHdCtrl::OnRcvdAbroadHogaByReq(CString& sTrCode, LONG& nRqID)
 		hoga_data.TotSellQty = sym->Hoga.TotSellQty = _ttoi(strTotSellQty);
 
 		SmMongoDBManager* mongoMgr = SmMongoDBManager::GetInstance();
-		//mongoMgr->SaveHoga(hoga_data);
+		mongoMgr->SaveHoga(hoga_data);
 
 		SmSessionManager* sessMgr = SmSessionManager::GetInstance();
 		sessMgr->SendReqUpdateHoga(sym);
