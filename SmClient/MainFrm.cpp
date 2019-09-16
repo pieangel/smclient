@@ -508,18 +508,25 @@ void CMainFrame::OnServerLogout()
 
 void CMainFrame::OnServerGetchartdata()
 {
-	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
-	// HON19
-	//sessMgr->ReqestChartData("CLN19", 5, 1, 1500);
-	//sessMgr->ReqestChartData("HON19", 5, 1, 1500);
-	sessMgr->ReqestChartData("GEM19", 5, 1, 1500);
+	SmChartDataRequest req;
+	req.service_req_id = 1;
+	req.session_id = 1;
+	req.user_id = "ddd";
+	req.reqType = SmChartDataReqestType::FIRST;
+	req.symbolCode = "TWU19";
+	req.chartType = (SmChartType)2;
+	req.cycle = 1;
+	req.count = 1500;
+	req.next = 0;
+	SmHdClient* client = SmHdClient::GetInstance();
+	client->GetChartData(req);
 }
 
 
 void CMainFrame::OnServerGetsisedata()
 {
 	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
-	sessMgr->RequestSiseData("CLN19");
+	sessMgr->RequestSiseData("TWU19");
 }
 
 

@@ -196,32 +196,33 @@ void SmTimeSeriesServiceManager::OnCompleteChartData(SmChartDataRequest data_req
 {
 	if (!chart_data)
 		return;
-	// 차트데이터를 받았음을 표시해 준다.
-	//chart_data->Received(true);
-	// 주기데이터를 먼저 등록해 준다.
-	//RegisterCycleChartDataRequest(data_req);
-	// 차트데이터를 보낸다.
-	//SendChartData(std::move(data_req), chart_data);
-	// 먼저 데이터베이스에 차트데이터를 저장한다.
-	SmMongoDBManager* mongoMgr = SmMongoDBManager::GetInstance();
-	mongoMgr->SaveChartData(chart_data);
-	// 여기서 서버에 차트 데이터가 도착했음을 알린다.
-	json send_object;
-	send_object["req_id"] = SmProtocol::req_chart_data_resend;
-	send_object["service_req_id"] = data_req.service_req_id;
-	send_object["session_id"] = data_req.session_id;
-	send_object["user_id"] = data_req.user_id;
-	send_object["symbol_code"] = data_req.symbolCode;
-	send_object["chart_type"] = (int)data_req.chartType;
-	send_object["cycle"] = data_req.cycle;
-	send_object["count"] = data_req.count;
-	std::string content = send_object.dump();
-	// 서버에 세션 아이와 함께 클라이언트에게 차트데이터가 수집되었음을 알리라고 보낸다.
-	// 서버에 이 메시지가 도착하면 서버는 데이터베이스에서 데이터를 가져와 세션 아이디를 가진 소켓으로 데이터를 보낸다.
-	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
-	sessMgr->Send(content);
-	// 주기데이터를 등록해 준다.
-	RegisterTimer(chart_data);
+	try
+	{
+		// 먼저 데이터베이스에 차트데이터를 저장한다.
+		SmMongoDBManager* mongoMgr = SmMongoDBManager::GetInstance();
+		mongoMgr->SaveChartData(chart_data);
+		// 여기서 서버에 차트 데이터가 도착했음을 알린다.
+		json send_object;
+		send_object["req_id"] = SmProtocol::req_chart_data_resend;
+		send_object["service_req_id"] = data_req.service_req_id;
+		send_object["req_session_id"] = data_req.session_id;
+		send_object["user_id"] = data_req.user_id;
+		send_object["symbol_code"] = data_req.symbolCode;
+		send_object["chart_type"] = (int)data_req.chartType;
+		send_object["cycle"] = data_req.cycle;
+		send_object["count"] = data_req.count;
+		std::string content = send_object.dump();
+		// 서버에 세션 아이와 함께 클라이언트에게 차트데이터가 수집되었음을 알리라고 보낸다.
+		// 서버에 이 메시지가 도착하면 서버는 데이터베이스에서 데이터를 가져와 세션 아이디를 가진 소켓으로 데이터를 보낸다.
+		SmSessionManager* sessMgr = SmSessionManager::GetInstance();
+		sessMgr->Send(content);
+		// 주기데이터를 등록해 준다.
+		//RegisterTimer(chart_data);
+	}
+	catch (std::exception& e)
+	{
+		std::string error = e.what();
+	}
 }
 
 void SmTimeSeriesServiceManager::OnCompleteChartCycleData(SmChartDataRequest data_req)

@@ -35,7 +35,7 @@ void SmProtocolManager::OnMessage(std::string message, SmWebsocketSession* socke
 
 	CString msg;
 	msg.Format(_T("message = %s, %x\n"), message.c_str(), socket);
-	TRACE(msg);
+	//TRACE(msg);
 	ParseMessage(message, socket);
 }
 
@@ -101,8 +101,12 @@ void SmProtocolManager::ParseMessage(std::string message, SmWebsocketSession* so
 		case SmProtocol::req_symbol_list_by_category:
 			OnReqSymbolListByCategory(json_object);
 			break;
-		case SmProtocol::req_chart_data_from_main_server:
+		case SmProtocol::req_chart_data_from_main_server: {
+			CString msg;
+			msg.Format(_T("message = %s, %x\n"), message.c_str(), socket);
+			TRACE(msg);
 			OnReqChartDataFromMainServer(json_object);
+		}
 			break;
 		default:
 			break;
@@ -110,6 +114,7 @@ void SmProtocolManager::ParseMessage(std::string message, SmWebsocketSession* so
 	}
 	catch (std::exception e) {
 		std::string error = e.what();
+		std::string msg = error;
 	}
 }
 
@@ -414,7 +419,7 @@ void SmProtocolManager::OnReqSymbolListByCategory(nlohmann::json& obj)
 void SmProtocolManager::OnReqChartDataFromMainServer(nlohmann::json& obj)
 {
 	try {
-		int session_id = obj["session_id"];
+		int session_id = obj["req_session_id"];
 		std::string user_id = obj["user_id"];
 		int service_req_id = obj["service_req_id"];
 		std::string symCode = obj["symbol_code"];

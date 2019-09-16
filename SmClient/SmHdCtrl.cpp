@@ -490,7 +490,6 @@ void SmHdCtrl::OnRcvdAbroadSise(CString& strKey, LONG& nRealType)
 	sym->Quote.accVolume = _ttoi(strAccVol);
 
 	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
-	//sessMgr->SendReqUpdateQuote(quoteItem.SymbolCode);
 	sessMgr->SendReqUpdateQuote(sym);
 
 	CString msg;
@@ -772,7 +771,9 @@ void SmHdCtrl::OnRcvdAbroadChartData2(CString& sTrCode, LONG& nRqID)
 	// 주기데이터가 도착했음을 알린다.
 	if (chart_data) {
 		if (nRepeatCnt == chart_data->CycleDataSize()) {
-			chart_data->OnChartDataUpdated();
+			// 차트 데이터 수신 완료를 알릴다.
+			SmTimeSeriesServiceManager* tsSvcMgr = SmTimeSeriesServiceManager::GetInstance();
+			tsSvcMgr->OnCompleteChartCycleData(req);
 		}
 		else {
 			RequestChartDataFromQ();
