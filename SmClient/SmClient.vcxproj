@@ -300,7 +300,7 @@
     <ClCompile Include="SmErrorHandler.cpp" />
     <ClCompile Include="SmHdClient.cpp" />
     <ClCompile Include="SmHdCtrl.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SmMarket.cpp" />
     <ClCompile Include="SmMarketManager.cpp" />

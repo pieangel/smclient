@@ -514,7 +514,7 @@ void CMainFrame::OnServerGetchartdata()
 	req.user_id = "ddd";
 	req.reqType = SmChartDataReqestType::FIRST;
 	req.symbolCode = "TWU19";
-	req.chartType = (SmChartType)2;
+	req.chartType = (SmChartType)1;
 	req.cycle = 1;
 	req.count = 1500;
 	req.next = 0;

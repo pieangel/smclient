@@ -243,7 +243,10 @@ void SmTimeSeriesDBManager::SaveQuoteItem(SmQuote&& qitem)
 		.field("c", qitem.Close)
 		.field("v", qitem.Volume)
 		.timestamp(utc * 1000000000 + nanos)
-		.post_http(*_ServerInfo, &resp);
+		//.post_http(*_ServerInfo, &resp);
+		.send_udp("127.0.0.1", 8089);
+
+	int result = ret;
 }
 
 void SmTimeSeriesDBManager::SaveCurrentQuoteItem(SmQuote&& qitem)

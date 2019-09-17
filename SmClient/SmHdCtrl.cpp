@@ -192,7 +192,7 @@ void SmHdCtrl::GetChartData(SmChartDataRequest req)
 {
 	
 	if (req.chartType == SmChartType::TICK)
-		GetChartDataShortCycle(req);
+		GetChartDataLongCycle(req);
 	else if (req.chartType == SmChartType::MIN)
 		GetChartDataShortCycle(req);
 	else if (req.chartType == SmChartType::DAY)
@@ -473,7 +473,9 @@ void SmHdCtrl::OnRcvdAbroadSise(CString& strKey, LONG& nRealType)
 
 
 	SmMongoDBManager* mongoMgr = SmMongoDBManager::GetInstance();
-	mongoMgr->SaveSise(quoteItem);
+	//mongoMgr->SaveSise(quoteItem);
+	SmTimeSeriesDBManager* tsDBMgr = SmTimeSeriesDBManager::GetInstance();
+	tsDBMgr->SaveQuoteItem(std::move(quoteItem));
 
 	SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 	SmSymbol* sym = symMgr->FindSymbol((LPCTSTR)strSymCode.Trim());
@@ -673,7 +675,7 @@ void SmHdCtrl::OnRcvdAbroadChartData(CString& sTrCode, LONG& nRqID)
 			continue;
 		
 		msg.Format(_T("OnRcvdAbroadChartData :: index = %d, date = %s, t = %s, o = %s, h = %s, l = %s, c = %s, v = %s\n"), i, strDate, strTime, strOpen, strHigh, strLow, strClose, strVol);
-		//TRACE(msg);
+		TRACE(msg);
 
 		SmChartDataItem data;
 		data.symbolCode = req.symbolCode;
