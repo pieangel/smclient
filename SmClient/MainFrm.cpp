@@ -513,7 +513,7 @@ void CMainFrame::OnServerGetchartdata()
 	req.session_id = 1;
 	req.user_id = "ddd";
 	req.reqType = SmChartDataReqestType::FIRST;
-	req.symbolCode = "TWU19";
+	req.symbolCode = "INU19";
 	req.chartType = (SmChartType)1;
 	req.cycle = 1;
 	req.count = 1500;
@@ -526,7 +526,8 @@ void CMainFrame::OnServerGetchartdata()
 void CMainFrame::OnServerGetsisedata()
 {
 	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
-	sessMgr->RequestSiseData("TWU19");
+	//sessMgr->RequestSiseData("INU19");
+	SmHdClient::GetInstance()->GetSiseData("INU19");
 }
 
 

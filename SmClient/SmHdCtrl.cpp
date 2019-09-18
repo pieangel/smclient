@@ -473,7 +473,7 @@ void SmHdCtrl::OnRcvdAbroadSise(CString& strKey, LONG& nRealType)
 
 
 	SmMongoDBManager* mongoMgr = SmMongoDBManager::GetInstance();
-	//mongoMgr->SaveSise(quoteItem);
+	mongoMgr->SaveSise(quoteItem);
 	SmTimeSeriesDBManager* tsDBMgr = SmTimeSeriesDBManager::GetInstance();
 	tsDBMgr->SaveQuoteItem(std::move(quoteItem));
 
@@ -511,17 +511,17 @@ void SmHdCtrl::OnRcvdAbroadSiseByReq(CString& sTrCode, LONG& nRqID)
 		msg.Format(_T("code = %s, name = %s, close = %s\n"), strData1, strData2, strData3);
 		TRACE(msg);
 
-		CString strSymCode = m_CommAgent.CommGetData(sTrCode, nRqID, "OutRec1", 0, "종목코드");
-		CString strTime = m_CommAgent.CommGetData(sTrCode, nRqID, "OutRec1", 0, "국내시간");
-		CString strPrev = m_CommAgent.CommGetData(sTrCode, nRqID, "OutRec1", 0, "직전대비구분");
-		CString strSignToPreDay = m_CommAgent.CommGetData(sTrCode, nRqID, "OutRec1", 0, "전일대비구분");
-		CString strToPreDay = m_CommAgent.CommGetData(sTrCode, nRqID, "OutRec1", 0, "전일대비");
-		CString strRatioToPreDay = m_CommAgent.CommGetData(sTrCode, nRqID, "OutRec1", 0, "전일대비등락율");
-		CString strClose = m_CommAgent.CommGetData(sTrCode, nRqID, "OutRec1", 0, "현재가");
-		CString strOpen = m_CommAgent.CommGetData(sTrCode, nRqID, "OutRec1", 0, "시가");
-		CString strHigh = m_CommAgent.CommGetData(sTrCode, nRqID, "OutRec1", 0, "고가");
-		CString strLow = m_CommAgent.CommGetData(sTrCode, nRqID, "OutRec1", 0, "저가");
-		CString strAccVol = m_CommAgent.CommGetData(sTrCode, nRqID, "OutRec1", 0, "누적거래량");
+		CString strSymCode = m_CommAgent.CommGetData(sTrCode, -1, "OutRec1", 0, "종목코드");
+		CString strTime = m_CommAgent.CommGetData(sTrCode, -1, "OutRec1", 0, "국내시간");
+		CString strPrev = m_CommAgent.CommGetData(sTrCode, -1, "OutRec1", 0, "직전대비구분");
+		CString strSignToPreDay = m_CommAgent.CommGetData(sTrCode, -1, "OutRec1", 0, "전일대비구분");
+		CString strToPreDay = m_CommAgent.CommGetData(sTrCode, -1, "OutRec1", 0, "전일대비");
+		CString strRatioToPreDay = m_CommAgent.CommGetData(sTrCode, -1, "OutRec1", 0, "전일대비등락율");
+		CString strClose = m_CommAgent.CommGetData(sTrCode, -1, "OutRec1", 0, "현재가");
+		CString strOpen = m_CommAgent.CommGetData(sTrCode, -1, "OutRec1", 0, "시가");
+		CString strHigh = m_CommAgent.CommGetData(sTrCode, -1, "OutRec1", 0, "고가");
+		CString strLow = m_CommAgent.CommGetData(sTrCode, -1, "OutRec1", 0, "저가");
+		CString strAccVol = m_CommAgent.CommGetData(sTrCode, -1, "OutRec1", 0, "누적거래량");
 
 		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 		SmSymbol* sym = symMgr->FindSymbol((LPCTSTR)strSymCode.Trim());
