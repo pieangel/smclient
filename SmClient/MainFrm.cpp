@@ -513,7 +513,7 @@ void CMainFrame::OnServerGetchartdata()
 	req.session_id = 1;
 	req.user_id = "ddd";
 	req.reqType = SmChartDataReqestType::FIRST;
-	req.symbolCode = "INU19";
+	req.symbolCode = "CNU19";
 	req.chartType = (SmChartType)1;
 	req.cycle = 1;
 	req.count = 1500;

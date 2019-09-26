@@ -141,6 +141,28 @@ void SmTimeSeriesServiceManager::SendChartData(SmChartDataRequest data_req, SmCh
 	}
 }
 
+void SmTimeSeriesServiceManager::SendChartData(int req_session_id, int total_count, int current_count, SmChartDataItem& item)
+{
+	json send_object;
+	send_object["req_id"] = SmProtocol::req_chart_data_resend_onebyone;
+	send_object["total_count"] = total_count;
+	send_object["current_count"] = current_count;
+	send_object["req_session_id"] = req_session_id;
+	send_object["symbol_code"] = item.symbolCode;
+	send_object["chart_type"] = item.chartType;
+	send_object["cycle"] = item.cycle;
+	send_object["date"] = item.date;
+	send_object["time"] = item.time;
+	send_object["o"] = item.o;
+	send_object["h"] = item.h;
+	send_object["l"] = item.l;
+	send_object["c"] = item.c;
+	send_object["v"] = item.v;
+
+	std::string content = send_object.dump();
+	SmSessionManager::GetInstance()->Send(content);
+}
+
 void SmTimeSeriesServiceManager::OnChartDataReceived(SmChartDataRequest&& data_req)
 {
 	//OnChartDataRequest(std::move(data_req));
@@ -215,7 +237,7 @@ void SmTimeSeriesServiceManager::OnCompleteChartData(SmChartDataRequest data_req
 		// 서버에 세션 아이와 함께 클라이언트에게 차트데이터가 수집되었음을 알리라고 보낸다.
 		// 서버에 이 메시지가 도착하면 서버는 데이터베이스에서 데이터를 가져와 세션 아이디를 가진 소켓으로 데이터를 보낸다.
 		SmSessionManager* sessMgr = SmSessionManager::GetInstance();
-		sessMgr->Send(content);
+		//sessMgr->Send(content);
 		// 주기데이터를 등록해 준다.
 		//RegisterTimer(chart_data);
 	}

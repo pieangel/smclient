@@ -23,6 +23,7 @@ public:
 	void SendDataSplitSize(int val) { _SendDataSplitSize = val; }
 	void OnCompleteChartData(SmChartDataRequest data_req, SmChartData* chart_data);
 	void OnCompleteChartCycleData(SmChartDataRequest data_req);
+	void SendChartData(int req_session_id, int total_count, int current_count, SmChartDataItem& item);
 private:
 	void RegisterCycleChartDataRequest(SmChartDataRequest data_req);
 	void SendChartData(std::vector<SmSimpleChartDataItem>& dataVec, SmChartDataRequest req, int totalCount, int startIndex, int endIndex);

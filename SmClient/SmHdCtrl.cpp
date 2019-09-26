@@ -21,6 +21,12 @@
 #include "SmChartData.h"
 #include "SmTimeSeriesServiceManager.h"
 #include "SmSessionManager.h"
+#include <thread>
+#include <algorithm>
+#include <numeric>
+#include <future>
+#include <string>
+#include <mutex>
 
 using namespace nlohmann;
 // VtHdCtrl dialog
@@ -660,6 +666,9 @@ void SmHdCtrl::OnRcvdAbroadChartData(CString& sTrCode, LONG& nRqID)
 	SmTimeSeriesCollector* tsCol = SmTimeSeriesCollector::GetInstance();
 	SmChartDataManager* chartDataMgr = SmChartDataManager::GetInstance();
 	SmChartData* chart_data = chartDataMgr->AddChartData(req);
+	int total_count = nRepeatCnt;
+	int current_count = 1;
+	std::vector<SmChartDataItem> chart_vec;
 	// 가장 최근것이 가장 먼저 온다. 따라서 가장 과거의 데이터를 먼저 가져온다.
 	// Received the chart data first.
 	for (int i = nRepeatCnt - 1; i >= 0; --i) {
@@ -688,13 +697,13 @@ void SmHdCtrl::OnRcvdAbroadChartData(CString& sTrCode, LONG& nRqID)
 		data.o = _ttoi(strOpen);
 		data.c = _ttoi(strClose);
 		data.v = _ttoi(strVol);
-		if (req.reqType == SmChartDataReqestType::FIRST)
-			chart_data->PushChartDataItemToBack(data);
-		else {
-			// 여기서 데이터 베이스를 업데이트 한다.
-			SmMongoDBManager* mongoMgr = SmMongoDBManager::GetInstance();
-			mongoMgr->SaveChartDataItem(data);
-		}
+
+		chart_vec.push_back(data);
+		
+		// 여기서 바로 데이터를 전송한다.
+		SmTimeSeriesServiceManager::GetInstance()->SendChartData(req.session_id, total_count, current_count++, data);
+		// 여기서 데이터 베이스를 업데이트 한다.
+		//SmMongoDBManager::GetInstance()->SaveChartDataItem(data);
 	}
 
 	// 차트 데이터 수신 요청 목록에서 제거한다.
@@ -712,6 +721,22 @@ void SmHdCtrl::OnRcvdAbroadChartData(CString& sTrCode, LONG& nRqID)
 			// 차트 데이터 수신 완료를 알릴다.
 			SmTimeSeriesServiceManager* tsSvcMgr = SmTimeSeriesServiceManager::GetInstance();
 			tsSvcMgr->OnCompleteChartData(req, chart_data);
+			
+			try
+			{
+				std::async(std::launch::async, [chart_vec] {
+					for (auto it = chart_vec.begin(); it != chart_vec.end(); ++it) {
+						SmChartDataItem item = *it;
+						SmMongoDBManager::GetInstance()->SaveChartDataItem(item);
+					}
+					});
+			}
+			catch (std::exception e)
+			{
+				std::string error = e.what();
+				LOG_F(INFO, "%s", error);
+			}
+			
 		}
 	}
 }
@@ -731,6 +756,8 @@ void SmHdCtrl::OnRcvdAbroadChartData2(CString& sTrCode, LONG& nRqID)
 	SmTimeSeriesCollector* tsCol = SmTimeSeriesCollector::GetInstance();
 	SmChartDataManager* chartDataMgr = SmChartDataManager::GetInstance();
 	SmChartData* chart_data = chartDataMgr->AddChartData(req);
+	int total_count = nRepeatCnt;
+	int current_count = 1;
 	// 가장 최근것이 가장 먼저 온다. 따라서 가장 과거의 데이터를 먼저 가져온다.
 	// Received the chart data first.
 	for (int i = 0; i < nRepeatCnt; ++i) {
@@ -762,10 +789,11 @@ void SmHdCtrl::OnRcvdAbroadChartData2(CString& sTrCode, LONG& nRqID)
 		data.o = _ttoi(strOpen);
 		data.c = _ttoi(strClose);
 		data.v = _ttoi(strVol);
-		if (req.reqType == SmChartDataReqestType::FIRST)
-			chart_data->PushChartDataItemToFront(data);
-		else
-			chart_data->UpdateChartData(data);
+
+		// 여기서 바로 데이터를 전송한다.
+		SmTimeSeriesServiceManager::GetInstance()->SendChartData(req.session_id, total_count, current_count++, data);
+		// 여기서 데이터 베이스를 업데이트 한다.
+		//SmMongoDBManager::GetInstance()->SaveChartDataItem(data);
 	}
 
 	// 차트 데이터 수신 요청 목록에서 제거한다.

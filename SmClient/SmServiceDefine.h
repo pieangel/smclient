@@ -98,5 +98,34 @@ enum class SmProtocol {
 	// 심볼 호가 업데이트 요청
 	req_update_hoga,
 	// 차트데이터가 업데이트 되었음을 알린다.
-	req_update_chart_data
+	req_update_chart_data,
+	// 사용자 등록을 요청한다.
+	req_register_user,
+	// 사용자 등록 요청에 대한 응답
+	res_register_user,
+	// 사용자 등록 해제 요청
+	req_unregister_user,
+	// 사용자 등록 해제 요청 응답
+	res_unregister_user,
+	// 계좌 목록 요청
+	req_account_list,
+	// 계좌 목록 응답
+	res_account_list,
+	// 차트 데이터 일대일 요청
+	req_chart_data_onebyone,
+	// 차트 데이터 일대일 응답
+	res_chart_data_onebyone,
+	// 접수확인 주문 목록 요청
+	req_accepted_order_list,
+	// 접수확인 주문 목록 응답
+	res_accepted_order_list,
+	// 체결 주문 목록 요청
+	req_filled_order_list,
+	// 체결 주문 목록 응답
+	res_filled_order_list,
+	// 주문 목록 요청
+	req_order_list,
+	// 주문 목록 응답
+	res_order_list,
+	req_chart_data_resend_onebyone
 };
