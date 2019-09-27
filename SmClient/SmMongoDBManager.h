@@ -25,6 +25,7 @@ public:
 	void SaveHoga(SmHoga hoga);
 	void SaveSise(SmQuote quote);
 	void SaveChartDataItem(SmChartDataItem item);
+	void LoadChartDataRequest();
 private:
 	void SaveMarketsToDatabase();
 	void SaveSymbolsToDatabase();

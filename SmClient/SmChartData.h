@@ -25,6 +25,14 @@ private:
 	// 등록된 사용자들에게 차트 정기 데이터를 보내준다.
 	void SendCyclicChartDataToUsers();
 public:
+	static std::string MakeDataKey(std::string symbol_code, int chart_type, int cycle) {
+		std::string key = symbol_code;
+		key.append(":");
+		key.append(std::to_string(chart_type));
+		key.append(":");
+		key.append(std::to_string(cycle));
+		return key;
+	}
 	std::list<SmChartDataItem>& GetDataItemList() {
 		return _DataItemList;
 	}

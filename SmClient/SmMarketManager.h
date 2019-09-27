@@ -30,6 +30,8 @@ public:
 	std::vector<SmMarket*>& GetMarketList() {
 		return _MarketList;
 	}
+
+	void requestRecentAllSise();
 private:
 	void SendSymbolMaster(std::string user_id, SmSymbol* sym);
 	std::vector<SmMarket*> _MarketList;

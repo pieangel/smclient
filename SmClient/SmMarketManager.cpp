@@ -18,7 +18,7 @@
 //#include "SmUser.h"
 #include "SmSymbol.h"
 #include "SmCategory.h"
-
+#include "SmHdClient.h"
 
 using namespace std::chrono;
 using namespace nlohmann;
@@ -180,6 +180,15 @@ int SmMarketManager::GetTotalSymbolCount()
 	}
 
 	return total;
+}
+
+void SmMarketManager::requestRecentAllSise()
+{
+	std::vector<SmSymbol*> symVec = GetRecentMonthSymbolList();
+	for (auto it = symVec.begin(); it != symVec.end(); ++it) {
+		SmSymbol* sym = *it;
+		SmHdClient::GetInstance()->GetSiseData(sym->SymbolCode());
+	}
 }
 
 void SmMarketManager::SendSymbolMaster(std::string user_id, SmSymbol* sym)

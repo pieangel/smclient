@@ -24,6 +24,11 @@
 #include <codecvt>
 #include <locale>
 #include "SmChartData.h"
+#include "Json/json.hpp"
+#include "SmChartDataManager.h"
+#include <windows.h>
+
+using namespace nlohmann;
 
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_array;
@@ -581,6 +586,35 @@ void SmMongoDBManager::SaveChartDataItem(SmChartDataItem item)
 					<< "v" << item.v
 					<< close_document << finalize);
 			}
+		}
+	}
+	catch (std::exception e) {
+		std::string error;
+		error = e.what();
+	}
+}
+
+void SmMongoDBManager::LoadChartDataRequest()
+{
+	try
+	{
+		//std::lock_guard<std::mutex> lock(_mutex);
+
+		auto c = _ConnPool->acquire();
+
+		auto db = (*c)["andromeda"];
+		using namespace bsoncxx;
+		mongocxx::collection coll = db["chart_data_request"];
+		mongocxx::cursor cursor = coll.find({});
+		SmChartDataManager* chartDataMgr = SmChartDataManager::GetInstance();
+		for (auto doc : cursor) {
+			std::string object = bsoncxx::to_json(doc);
+			auto json_object = json::parse(object);
+			std::string symbol_code = json_object["symbol_code"];
+			int chart_type = json_object["chart_type"];
+			int cycle = json_object["chart_cycle"];
+			SmChartData* chart_data = chartDataMgr->AddChartData(symbol_code, chart_type, cycle);
+			chartDataMgr->RegisterTimer(chart_data);
 		}
 	}
 	catch (std::exception e) {

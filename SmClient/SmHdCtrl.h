@@ -123,6 +123,7 @@ private:
 	CString m_sAuthPw;
 	CString m_sAcntPw;
 	SmHdClient* _Client = nullptr;
+	bool _SaveChartData = false;
 public:
 	int Init();
 	int LogIn(CString id, CString pwd, CString cert);

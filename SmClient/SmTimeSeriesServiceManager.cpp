@@ -163,6 +163,25 @@ void SmTimeSeriesServiceManager::SendChartData(int req_session_id, int total_cou
 	SmSessionManager::GetInstance()->Send(content);
 }
 
+void SmTimeSeriesServiceManager::SendCycleChartData(SmChartDataItem& item)
+{
+	json send_object;
+	send_object["req_id"] = SmProtocol::req_cycle_data_resend_onebyone;
+	send_object["symbol_code"] = item.symbolCode;
+	send_object["chart_type"] = item.chartType;
+	send_object["cycle"] = item.cycle;
+	send_object["date"] = item.date;
+	send_object["time"] = item.time;
+	send_object["o"] = item.o;
+	send_object["h"] = item.h;
+	send_object["l"] = item.l;
+	send_object["c"] = item.c;
+	send_object["v"] = item.v;
+
+	std::string content = send_object.dump();
+	SmSessionManager::GetInstance()->Send(content);
+}
+
 void SmTimeSeriesServiceManager::OnChartDataReceived(SmChartDataRequest&& data_req)
 {
 	//OnChartDataRequest(std::move(data_req));
@@ -240,6 +259,8 @@ void SmTimeSeriesServiceManager::OnCompleteChartData(SmChartDataRequest data_req
 		//sessMgr->Send(content);
 		// 주기데이터를 등록해 준다.
 		//RegisterTimer(chart_data);
+		SmChartDataManager* chartDataMgr = SmChartDataManager::GetInstance();
+		chartDataMgr->RegisterTimer(chart_data);
 	}
 	catch (std::exception& e)
 	{

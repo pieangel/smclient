@@ -94,13 +94,15 @@
 #define ID_SERVER_GETSISEDATA           32777
 #define ID_SERVER_REGISTERCYCLEDT       32778
 #define ID_SERVER_REGISTERSOCKET        32779
+#define ID_SERVER_LOADCHARTDATAREQUEST  32780
+#define ID_SERVER_GETSISE               32781
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        312
-#define _APS_NEXT_COMMAND_VALUE         32780
+#define _APS_NEXT_COMMAND_VALUE         32782
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           310
 #endif

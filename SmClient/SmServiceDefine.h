@@ -127,5 +127,8 @@ enum class SmProtocol {
 	req_order_list,
 	// 주문 목록 응답
 	res_order_list,
-	req_chart_data_resend_onebyone
+	// 차트 데이터를 하나씩 보낸다.
+	req_chart_data_resend_onebyone,
+	// 주기 데이터를 하나씩 보낸다.
+	req_cycle_data_resend_onebyone
 };

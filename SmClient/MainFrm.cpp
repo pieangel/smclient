@@ -49,6 +49,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWndEx)
 	ON_COMMAND(ID_SERVER_GETSISEDATA, &CMainFrame::OnServerGetsisedata)
 	ON_COMMAND(ID_SERVER_REGISTERCYCLEDT, &CMainFrame::OnServerRegistercycledt)
 	ON_COMMAND(ID_SERVER_REGISTERSOCKET, &CMainFrame::OnServerRegistersocket)
+	ON_COMMAND(ID_SERVER_LOADCHARTDATAREQUEST, &CMainFrame::OnServerLoadchartdatarequest)
+	ON_COMMAND(ID_SERVER_GETSISE, &CMainFrame::OnServerGetsise)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -553,4 +555,17 @@ void CMainFrame::OnServerRegistersocket()
 
 	SmRealtimeSymbolServiceManager* rtsMgr = SmRealtimeSymbolServiceManager::GetInstance();
 	rtsMgr->RegisterAllRecentSymbol();
+}
+
+
+void CMainFrame::OnServerLoadchartdatarequest()
+{
+	// TODO: Add your command handler code here
+	SmMongoDBManager::GetInstance()->LoadChartDataRequest();
+}
+
+
+void CMainFrame::OnServerGetsise()
+{
+	SmMarketManager::GetInstance()->requestRecentAllSise();
 }

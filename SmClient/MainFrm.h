@@ -75,6 +75,8 @@ private:
 	void InitHdClient();
 public:
 	afx_msg void OnServerRegistersocket();
+	afx_msg void OnServerLoadchartdatarequest();
+	afx_msg void OnServerGetsise();
 };
 
 
