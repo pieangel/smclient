@@ -19,7 +19,7 @@
 #include "SmConfigManager.h"
 #include "SmUtfUtil.h"
 #include "SmMarket.h"
-#include "SmCategory.h"
+#include "SmProduct.h"
 #include "SmSymbol.h"
 #include <codecvt>
 #include <locale>
@@ -175,7 +175,8 @@ void SmMongoDBManager::ReadSymbol()
 	SmConfigManager* configMgr = SmConfigManager::GetInstance();
 	std::string appPath = configMgr->GetApplicationPath();
 
-	mrktMgr->ReadSymbolsFromFile();
+	mrktMgr->ReadAbroadSymbolsFromFile();
+	mrktMgr->ReadDomesticSymbolsFromFile();
 
 	SaveMarketsToDatabase();
 
@@ -646,9 +647,9 @@ void SmMongoDBManager::SaveMarketsToDatabase()
 				coll.find_one(bsoncxx::builder::stream::document{} << "market_name" << SmUtfUtil::AnsiToUtf8((char*)market->Name().c_str()) << finalize);
 			if (!found_market) {
 				auto in_array = builder << "product_list" << builder::stream::open_array;
-				std::vector<SmCategory*>& catVec = market->GetCategoryList();
+				std::vector<SmProduct*>& catVec = market->GetProductList();
 				for (size_t j = 0; j < catVec.size(); ++j) {
-					SmCategory* cat = catVec[j];
+					SmProduct* cat = catVec[j];
 					bsoncxx::stdx::optional<bsoncxx::document::value> found_product =
 						coll.find_one(bsoncxx::builder::stream::document{} << "prodcut_list.product_code" << cat->Code() << finalize);
 					if (!found_product) {
@@ -719,9 +720,9 @@ void SmMongoDBManager::SaveSymbolsToDatabase()
 
 		for (size_t i = 0; i < marketList.size(); ++i) {
 			SmMarket* market = marketList[i];
-			std::vector<SmCategory*>& cat_list = market->GetCategoryList();
+			std::vector<SmProduct*>& cat_list = market->GetProductList();
 			for (size_t j = 0; j < cat_list.size(); ++j) {
-				SmCategory* cat = cat_list[j];
+				SmProduct* cat = cat_list[j];
 				std::vector<SmSymbol*>& sym_list = cat->GetSymbolList();
 				for (size_t k = 0; k < sym_list.size(); ++k) {
 					SmSymbol* sym = sym_list[k];
@@ -733,13 +734,15 @@ void SmMongoDBManager::SaveSymbolsToDatabase()
 							<< "symbol_index" << sym->Index()
 							<< "symbol_name_kr" << SmUtfUtil::AnsiToUtf8((char*)sym->Name().c_str())
 							<< "symbol_name_en" << sym->NameEn()
-							<< "product_code" << sym->CategoryCode()
+							<< "product_code" << sym->ProductCode()
 							<< "market_name" << SmUtfUtil::AnsiToUtf8((char*)sym->MarketName().c_str())
 							<< "decimal" << sym->Decimal()
 							<< "contract_unit" << sym->CtrUnit()
 							<< "seungsu" << sym->Seungsu()
 							<< "tick_size" << sym->TickSize()
 							<< "tick_value" << sym->TickValue()
+							<< "near_month" << sym->NearMonth()
+							<< "last_date" << sym->LastDate()
 							<< bsoncxx::builder::stream::finalize;
 						auto res = db["symbol_list"].insert_one(std::move(doc_value));
 					}

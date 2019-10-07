@@ -2,11 +2,11 @@
 #include <string>
 #include <vector>
 class SmSymbol;
-class SmCategory
+class SmProduct
 {
 public:
-	SmCategory();
-	~SmCategory();
+	SmProduct();
+	~SmProduct();
 	std::string Code() const { return _Code; }
 	void Code(std::string val) { _Code = val; }
 	std::string NameKr() const { return _NameKr; }

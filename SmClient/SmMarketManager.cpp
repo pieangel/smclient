@@ -6,7 +6,7 @@
 #include "Xml/pugixml.hpp"
 #include "SmSymbolReader.h"
 #include "SmMarket.h"
-#include "SmCategory.h"
+#include "SmProduct.h"
 #include "Util/VtStringUtil.h"
 #include "Json/json.hpp"
 #include "Log/loguru.hpp"
@@ -17,7 +17,7 @@
 //#include "SmUserManager.h"
 //#include "SmUser.h"
 #include "SmSymbol.h"
-#include "SmCategory.h"
+#include "SmProduct.h"
 #include "SmHdClient.h"
 
 using namespace std::chrono;
@@ -36,7 +36,7 @@ SmMarketManager::~SmMarketManager()
 	}
 }
 
-void SmMarketManager::ReadSymbolsFromFile()
+void SmMarketManager::ReadAbroadSymbolsFromFile()
 {
 	SmSymbolReader* symReader = SmSymbolReader::GetInstance();
 	SmConfigManager* configMgr = SmConfigManager::GetInstance();
@@ -60,6 +60,30 @@ void SmMarketManager::ReadSymbolsFromFile()
 	}
 }
 
+void SmMarketManager::ReadDomesticSymbolsFromFile()
+{
+	SmSymbolReader* symReader = SmSymbolReader::GetInstance();
+	SmConfigManager* configMgr = SmConfigManager::GetInstance();
+	std::string appPath = configMgr->GetApplicationPath();
+	std::string configPath = appPath;
+	configPath.append(_T("\\Config\\Config.xml"));
+	std::string dataPath = appPath;
+	dataPath.append(_T("\\mst\\"));
+	pugi::xml_document doc;
+
+	pugi::xml_parse_result result = doc.load_file(configPath.c_str());
+	pugi::xml_node app = doc.first_child();
+	pugi::xml_node sym_file_list = app.first_child();
+	pugi::xml_node abroad_list = sym_file_list.first_child().next_sibling();
+	int index = 3;
+	for (auto it = abroad_list.begin(); it != abroad_list.end(); ++it) {
+		std::string file_name = it->text().as_string();
+		TRACE(file_name.c_str());
+		std::string file_path = dataPath + file_name;
+		symReader->ReadSymbolFromFile(index++, file_path);
+	}
+}
+
 SmMarket* SmMarketManager::AddMarket(std::string name)
 {
 	SmMarket* found_market = FindMarket(name);
@@ -72,22 +96,22 @@ SmMarket* SmMarketManager::AddMarket(std::string name)
 	return market;
 }
 
-SmCategory* SmMarketManager::FindCategory(std::string mrkt_name, std::string cat_code)
+SmProduct* SmMarketManager::FindProduct(std::string mrkt_name, std::string cat_code)
 {
 	SmMarket* cur_market = FindMarket(mrkt_name);
 	if (!cur_market)
 		return nullptr;
-	return cur_market->FindCategory(cat_code);
+	return cur_market->FindProduct(cat_code);
 }
 
-SmCategory* SmMarketManager::FindCategory(std::string cat_code)
+SmProduct* SmMarketManager::FindProduct(std::string cat_code)
 {
 	auto it = _CategoryToMarketMap.find(cat_code);
 	if (it != _CategoryToMarketMap.end()) {
 		std::string market_name = it->second;
 		SmMarket* mrkt = FindMarket(market_name);
 		if (mrkt)
-			return mrkt->FindCategory(cat_code);
+			return mrkt->FindProduct(cat_code);
 		else
 			return nullptr;
 	}
@@ -100,7 +124,7 @@ std::vector<SmSymbol*> SmMarketManager::GetRecentMonthSymbolList()
 	std::vector<SmSymbol*> symvec;
 	for (auto it = _MarketList.begin(); it != _MarketList.end(); ++it) {
 		SmMarket* mrkt = *it;
-		auto cat_vec = mrkt->GetCategoryList();
+		auto cat_vec = mrkt->GetProductList();
 		for (auto itc = cat_vec.begin(); itc != cat_vec.end(); ++itc) {
 			SmSymbol* sym = (*itc)->GetRecentMonthSymbol();
 			if (sym)
@@ -121,9 +145,9 @@ void SmMarketManager::SendMarketList(std::string user_id)
 		send_object["total_category_count"] = GetTotalCategoryCount();
 		send_object["market_index"] = (int)i;
 		send_object["market_name"] = SmUtfUtil::AnsiToUtf8((char*)market->Name().c_str());
-		std::vector<SmCategory*>&  catVec = market->GetCategoryList();
+		std::vector<SmProduct*>&  catVec = market->GetProductList();
 		for (size_t j = 0; j < catVec.size(); ++j) {
-			SmCategory* cat = catVec[j];
+			SmProduct* cat = catVec[j];
 			send_object["category"][j] = {
 				{ "code",  cat->Code() },
 				{ "name_kr", SmUtfUtil::AnsiToUtf8((char*)cat->NameKr().c_str()) },
@@ -146,9 +170,9 @@ void SmMarketManager::SendSymbolListByCategory(std::string user_id)
 {
 	for (size_t i = 0; i < _MarketList.size(); ++i) {
 		SmMarket* market = _MarketList[i];
-		std::vector<SmCategory*>& cat_list = market->GetCategoryList();
+		std::vector<SmProduct*>& cat_list = market->GetProductList();
 		for (size_t j = 0; j < cat_list.size(); ++j) {
-			SmCategory* cat = cat_list[j];
+			SmProduct* cat = cat_list[j];
 			std::vector<SmSymbol*>& sym_list = cat->GetSymbolList();
 			for (size_t k = 0; k < sym_list.size(); ++k) {
 				SendSymbolMaster(user_id, sym_list[k]);
@@ -162,7 +186,7 @@ int SmMarketManager::GetTotalCategoryCount()
 	int total = 0;
 	for (size_t i = 0; i < _MarketList.size(); ++i) {
 		SmMarket* market = _MarketList[i];
-		total += market->GetCategoryList().size();
+		total += market->GetProductList().size();
 	}
 
 	return total;
@@ -173,7 +197,7 @@ int SmMarketManager::GetTotalSymbolCount()
 	int total = 0;
 	for (size_t i = 0; i < _MarketList.size(); ++i) {
 		SmMarket* market = _MarketList[i];
-		std::vector<SmCategory*>& cat_list = market->GetCategoryList();
+		std::vector<SmProduct*>& cat_list = market->GetProductList();
 		for (size_t j = 0; j < cat_list.size(); ++j) {
 			total += cat_list[j]->GetSymbolList().size();
 		}
@@ -202,7 +226,7 @@ void SmMarketManager::SendSymbolMaster(std::string user_id, SmSymbol* sym)
 	send_object["category_index"] = sym->Index();
 	send_object["name_kr"] = SmUtfUtil::AnsiToUtf8((char*)sym->Name().c_str());
 	send_object["name_en"] = sym->NameEn().c_str();
-	send_object["category_code"] = sym->CategoryCode();
+	send_object["category_code"] = sym->ProductCode();
 	send_object["market_name"] = SmUtfUtil::AnsiToUtf8((char*)sym->MarketName().c_str());
 	send_object["decimal"] = sym->Decimal();
 	send_object["contract_unit"] = sym->CtrUnit();

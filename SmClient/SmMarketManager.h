@@ -4,24 +4,25 @@
 #include <map>
 #include <vector>
 class SmMarket;
-class SmCategory;
+class SmProduct;
 class SmSymbol;
 class SmMarketManager : public TemplateSingleton<SmMarketManager>
 {
 public:
 	SmMarketManager();
 	~SmMarketManager();
-	void ReadSymbolsFromFile();
+	void ReadAbroadSymbolsFromFile();
+	void ReadDomesticSymbolsFromFile();
 	/// <summary>
 	/// 이름으로 시장 객체를 추가한다.
 	/// </summary>
 	/// <param name="name"></param>
 	/// <returns>생성된 시장 객체를 돌려준다.</returns>
 	SmMarket* AddMarket(std::string name);
-	SmCategory* FindCategory(std::string mrkt_name, std::string cat_code);
+	SmProduct* FindProduct(std::string mrkt_name, std::string cat_code);
 	SmMarket* FindMarket(std::string mrkt_name);
 	void AddCategoryMarket(std::string cat_code, std::string mrkt_name);
-	SmCategory* FindCategory(std::string cat_code);
+	SmProduct* FindProduct(std::string cat_code);
 	std::vector<SmSymbol*> GetRecentMonthSymbolList();
 	void SendMarketList(std::string user_id);
 	void SendSymbolListByCategory(std::string user_id);

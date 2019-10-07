@@ -1,19 +1,19 @@
 #include "pch.h"
-#include "SmCategory.h"
+#include "SmProduct.h"
 #include "SmSymbol.h"
 #include "SmSymbolManager.h"
 
-SmCategory::SmCategory()
+SmProduct::SmProduct()
 {
 }
 
 
-SmCategory::~SmCategory()
+SmProduct::~SmProduct()
 {
 	
 }
 
-SmSymbol* SmCategory::AddSymbol(std::string symCode)
+SmSymbol* SmProduct::AddSymbol(std::string symCode)
 {
 	SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 	SmSymbol* sym = new SmSymbol();
@@ -23,7 +23,7 @@ SmSymbol* SmCategory::AddSymbol(std::string symCode)
 	return sym;
 }
 
-SmSymbol* SmCategory::GetRecentMonthSymbol()
+SmSymbol* SmProduct::GetRecentMonthSymbol()
 {
 	if (_SymbolList.size() == 0)
 		return nullptr;

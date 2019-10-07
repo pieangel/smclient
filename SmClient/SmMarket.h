@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
-class SmCategory;
+class SmProduct;
 class SmMarket
 {
 public:
@@ -14,13 +14,14 @@ public:
 	/// </summary>
 	/// <param name="code"></param>
 	/// <returns></returns>
-	SmCategory* AddCategory(std::string code);
-	SmCategory* FindCategory(std::string code);
-	std::vector<SmCategory*>& GetCategoryList() {
+	SmProduct* AddProduct(std::string code);
+	SmProduct* FindProduct(std::string code);
+	SmProduct* FindAddProduct(std::string code);
+	std::vector<SmProduct*>& GetProductList() {
 		return _CategoryList;
 	}
 private:
 	std::string _Name;
-	std::vector<SmCategory*> _CategoryList;
+	std::vector<SmProduct*> _CategoryList;
 };
 

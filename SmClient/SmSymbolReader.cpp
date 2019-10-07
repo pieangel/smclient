@@ -7,7 +7,7 @@
 #include <boost/algorithm/string.hpp>
 #include "SmMarket.h"
 #include "SmMarketManager.h"
-#include "SmCategory.h"
+#include "SmProduct.h"
 #include "SmSymbol.h"
 #include "SmTimeSeriesServiceManager.h"
 #include "SmSymbolManager.h"
@@ -41,6 +41,33 @@ void SmSymbolReader::ReadSymbolFromFile(int index, std::string fullPath)
 		break;
 	case 2:
 		ReadJmFile(fullPath);
+		break;
+	case 3:
+		ReadKospiFutureFile(fullPath);
+		break;
+	case 4:
+		ReadKospiOptionFile(fullPath);
+		break;
+	case 5:
+		ReadKospiWeeklyOptionFile(fullPath);
+		break;
+	case 6:
+		ReadKosdaqFutureFile(fullPath);
+		break;
+	case 7:
+		ReadMiniKospiFutureFile(fullPath);
+		break;
+	case 8:
+		ReadCommodityFutureFile(fullPath);
+		break;
+	case 9:
+		ReadKospiFutureInfo(fullPath);
+		break;
+	case 10:
+		ReadKospiOptionInfo(fullPath);
+		break;
+	case 11:
+		ReadUsDollarFutureInfo(fullPath);
 		break;
 	default:
 		break;
@@ -87,7 +114,7 @@ void SmSymbolReader::ReadMarketFile(std::string fullPath)
 		boost::trim_right(name);
 		
 		SmMarket* market = marketMgr->AddMarket(market_type);
-		SmCategory* cat = market->AddCategory(pmCode);
+		SmProduct* cat = market->AddProduct(pmCode);
 		cat->MarketName(market_type);
 		cat->Exchange(exchange);
 		cat->Name(enName);
@@ -122,7 +149,7 @@ void SmSymbolReader::ReadPmFile()
 		boost::trim_right(exChangeCode);
 		boost::trim_right(pmCode);
 		boost::trim_right(pmGubun);
-		SmCategory* cat = marketMgr->FindCategory(market, pmCode);
+		SmProduct* cat = marketMgr->FindProduct(market, pmCode);
 		if (cat) {
 			cat->ExchangeCode(exChangeCode);
 			cat->ExchangeIndex(exIndexCode);
@@ -155,7 +182,7 @@ void SmSymbolReader::ReadPmFile(std::string fullPath)
 		boost::trim_right(exChangeCode);
 		boost::trim_right(pmCode);
 		boost::trim_right(pmGubun);
-		SmCategory* cat = marketMgr->FindCategory(market, pmCode);
+		SmProduct* cat = marketMgr->FindProduct(market, pmCode);
 		if (cat) {
 			cat->ExchangeCode(exChangeCode);
 			cat->ExchangeIndex(exIndexCode);
@@ -359,7 +386,7 @@ void SmSymbolReader::ReadJmFile(std::string fullPath)
 		std::string TradFrDt = line.substr(225, 8);
 		/* 최초거래일                           */
 
-		std::string TradToDt = line.substr(233, 8);
+		std::string last_date = line.substr(233, 8);
 		/* 최종거래일                           */
 
 		std::string ExprDt = line.substr(241, 8);
@@ -428,20 +455,22 @@ void SmSymbolReader::ReadJmFile(std::string fullPath)
 		TRACE(msg);
 
 		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
-		SmCategory* cat = marketMgr->FindCategory(MrktCd);
+		SmProduct* cat = marketMgr->FindProduct(MrktCd);
 		if (cat) {
 			SmSymbol* sym = cat->AddSymbol(Series);
 			sym->Index(std::stoi(IndexCode));
+			sym->NearMonth(std::stoi(IndexCode));
 			sym->Name(SeriesNmKor);
 			sym->NameEn(SeriesNm);
 			symMgr->AddSymbol(sym);
-			sym->CategoryCode(cat->Code());
+			sym->ProductCode(cat->Code());
 			sym->MarketName(cat->MarketName());
 			sym->Decimal(std::stoi(Pdesz));
 			sym->Seungsu(std::stoi(MltiPler));
 			sym->CtrUnit(std::stod(CtrtSize));
 			sym->TickValue(std::stod(TickValue));
 			sym->TickSize(std::stod(TickSize));
+			sym->LastDate(last_date);
 
 			SmTimeSeriesDBManager* dbMgr = SmTimeSeriesDBManager::GetInstance();
 			//dbMgr->SaveSymbol(sym);
@@ -450,6 +479,616 @@ void SmSymbolReader::ReadJmFile(std::string fullPath)
 			if (Series.compare("CLQ19") == 0) {
 				int k = 0;
 			}
+		}
+	}
+}
+
+// 국내는 앞에 3자리가 상품을 나타낸다. 그 다음 한자리가 년도를 나타내며 그 다음 한자리가 월을 나타낸다.
+// 나머지 네자리는 행사가를 의미한다.
+void SmSymbolReader::ReadKospiFutureFile(std::string fullPath)
+{
+	SmMarketManager* marketMgr = SmMarketManager::GetInstance();
+	std::string market_name = "국내시장";
+	SmMarket *market = marketMgr->AddMarket(market_name);
+	CString msg;
+	std::ifstream infile(fullPath);
+	std::string line;
+	while (std::getline(infile, line))
+	{
+		std::istringstream iss(line);
+
+		std::string shcode = line.substr(0, 8);
+		/* 종목코드                             */
+
+		std::string expcode = line.substr(8, 12);
+		/* 표준코드                               */
+
+		std::string hname = line.substr(20, 30);
+		/* 한글 종목명                      */
+
+		std::string item = line.substr(50, 6);
+		/* 기초자산코드                             */
+
+		std::string deli = line.substr(56, 2);
+		/* 소수점                          */
+
+		std::string hounit = line.substr(58, 5);
+		/*호가단위                          */
+
+		// 0이 8개 더 붙어 있어 일부러 13자리만 읽는다.
+		std::string tradewin = line.substr(63, 13);
+		/* 거래승수                         */
+
+		std::string spjmgubun = line.substr(84, 1);
+		/* 스프레드기준종목구분코드*/
+
+		std::string gshcode = line.substr(85, 8);
+		/* 근월물코드                            */
+
+		std::string wshcode = line.substr(93, 8);
+		/* 원월물코드                           */
+
+		std::string product_code = shcode.substr(0, 3);
+
+		
+
+		boost::trim_right(shcode);
+		boost::trim_right(hname);
+		boost::trim(item);
+		boost::trim(deli);
+		msg.Format(_T("code = %s, name = %s, name_kr = %s\n"), shcode.c_str(), hname.c_str(), item.c_str());
+		TRACE(msg);
+
+		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
+		SmProduct* product = market->FindAddProduct(product_code);
+		SmSymbol* sym = product->AddSymbol(shcode);
+		sym->Name(hname);
+		symMgr->AddSymbol(sym);
+		sym->ProductCode(product->Code());
+		sym->MarketName(product->MarketName());
+		sym->Decimal(std::stoi(deli));
+		sym->Seungsu(std::stoi(tradewin));
+		int hoga_unit = std::stoi(hounit);
+		int deci = std::stoi(deli);
+		double tick_size = hoga_unit / std::pow(10, deci);
+		sym->TickSize(tick_size);
+		sym->CtrUnit(tick_size);
+		double tick_value = std::stoi(tradewin) * tick_size;
+		sym->TickValue(tick_value);
+	}
+}
+
+void SmSymbolReader::ReadKospiOptionFile(std::string fullPath)
+{
+	SmMarketManager* marketMgr = SmMarketManager::GetInstance();
+	std::string market_name = "국내시장";
+	SmMarket* market = marketMgr->AddMarket(market_name);
+	CString msg;
+	std::ifstream infile(fullPath);
+	std::string line;
+	while (std::getline(infile, line))
+	{
+		std::istringstream iss(line);
+
+		std::string shcode = line.substr(0, 8);
+		/* 종목코드                             */
+
+		std::string expcode = line.substr(8, 12);
+		/* 표준코드                               */
+
+		std::string hname = line.substr(20, 30);
+		/* 한글 종목명                      */
+
+		std::string atm = line.substr(50, 1);
+		/* ATM 구분                      */
+
+		std::string item = line.substr(51, 6);
+		/* 기초자산코드                             */
+
+		std::string deli = line.substr(57, 2);
+		/* 소수점                          */
+
+		std::string hounit = line.substr(59, 5);
+		/*호가단위                          */
+
+		// 0이 8개 더 붙어 있어 일부러 13자리만 읽는다.
+		std::string tradewin = line.substr(64, 13);
+		/* 거래승수                         */
+
+		std::string spjmgubun = line.substr(85, 1);
+		/* 스프레드기준종목구분코드*/
+
+		std::string gshcode = line.substr(86, 8);
+		/* 근월물코드                            */
+
+		std::string wshcode = line.substr(94, 8);
+		/* 원월물코드                           */
+
+		std::string product_code = shcode.substr(0, 3);
+
+
+
+		boost::trim_right(shcode);
+		boost::trim_right(hname);
+		boost::trim(item);
+		boost::trim(deli);
+		msg.Format(_T("code = %s, name = %s, name_kr = %s\n"), shcode.c_str(), hname.c_str(), item.c_str());
+		TRACE(msg);
+
+		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
+		SmProduct* product = market->FindAddProduct(product_code);
+		SmSymbol* sym = product->AddSymbol(shcode);
+		sym->Name(hname);
+		symMgr->AddSymbol(sym);
+		sym->ProductCode(product->Code());
+		sym->MarketName(product->MarketName());
+		sym->Decimal(std::stoi(deli));
+		sym->Seungsu(std::stoi(tradewin));
+		sym->Atm(std::stoi(atm));
+		int hoga_unit = std::stoi(hounit);
+		int deci = std::stoi(deli);
+		double tick_size = hoga_unit / std::pow(10, deci);
+		sym->TickSize(tick_size);
+		sym->CtrUnit(tick_size);
+		double tick_value = std::stoi(tradewin) * tick_size;
+		sym->TickValue(tick_value);
+	}
+}
+
+void SmSymbolReader::ReadKospiWeeklyOptionFile(std::string fullPath)
+{
+	SmMarketManager* marketMgr = SmMarketManager::GetInstance();
+	std::string market_name = "국내시장";
+	SmMarket* market = marketMgr->AddMarket(market_name);
+	CString msg;
+	std::ifstream infile(fullPath);
+	std::string line;
+	while (std::getline(infile, line))
+	{
+		std::istringstream iss(line);
+
+		std::string shcode = line.substr(0, 8);
+		/* 종목코드                             */
+
+		std::string expcode = line.substr(8, 12);
+		/* 표준코드                               */
+
+		std::string hname = line.substr(20, 30);
+		/* 한글 종목명                      */
+
+		std::string atm = line.substr(50, 1);
+		/* ATM 구분                      */
+
+		std::string item = line.substr(51, 6);
+		/* 기초자산코드                             */
+
+		std::string deli = line.substr(57, 2);
+		/* 소수점                          */
+
+		std::string hounit = line.substr(59, 5);
+		/*호가단위                          */
+
+		// 0이 8개 더 붙어 있어 일부러 13자리만 읽는다.
+		std::string tradewin = line.substr(64, 13);
+		/* 거래승수                         */
+
+		std::string spjmgubun = line.substr(85, 1);
+		/* 스프레드기준종목구분코드*/
+
+		std::string gshcode = line.substr(86, 8);
+		/* 근월물코드                            */
+
+		std::string wshcode = line.substr(94, 8);
+		/* 원월물코드                           */
+
+		std::string product_code = shcode.substr(0, 3);
+
+
+
+		boost::trim_right(shcode);
+		boost::trim_right(hname);
+		boost::trim(item);
+		boost::trim(deli);
+		msg.Format(_T("code = %s, name = %s, name_kr = %s\n"), shcode.c_str(), hname.c_str(), item.c_str());
+		TRACE(msg);
+
+		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
+		SmProduct* product = market->FindAddProduct(product_code);
+		SmSymbol* sym = product->AddSymbol(shcode);
+		sym->Name(hname);
+		symMgr->AddSymbol(sym);
+		sym->ProductCode(product->Code());
+		sym->MarketName(product->MarketName());
+		sym->Decimal(std::stoi(deli));
+		sym->Seungsu(std::stoi(tradewin));
+		sym->Atm(std::stoi(atm));
+		int hoga_unit = std::stoi(hounit);
+		int deci = std::stoi(deli);
+		double tick_size = hoga_unit / std::pow(10, deci);
+		sym->TickSize(tick_size);
+		sym->CtrUnit(tick_size);
+		double tick_value = std::stoi(tradewin) * tick_size;
+		sym->TickValue(tick_value);
+	}
+}
+
+void SmSymbolReader::ReadKosdaqFutureFile(std::string fullPath)
+{
+	SmMarketManager* marketMgr = SmMarketManager::GetInstance();
+	std::string market_name = "국내시장";
+	SmMarket* market = marketMgr->AddMarket(market_name);
+	CString msg;
+	std::ifstream infile(fullPath);
+	std::string line;
+	while (std::getline(infile, line))
+	{
+		std::istringstream iss(line);
+
+		std::string shcode = line.substr(0, 8);
+		/* 종목코드                             */
+
+		std::string expcode = line.substr(8, 12);
+		/* 표준코드                               */
+
+		std::string hname = line.substr(20, 30);
+		/* 한글 종목명                      */
+
+		std::string item = line.substr(50, 6);
+		/* 기초자산코드                             */
+
+		std::string deli = line.substr(56, 2);
+		/* 소수점                          */
+
+		std::string hounit = line.substr(58, 5);
+		/*호가단위                          */
+
+		// 0이 8개 더 붙어 있어 일부러 13자리만 읽는다.
+		std::string tradewin = line.substr(63, 13);
+		/* 거래승수                         */
+
+		std::string spjmgubun = line.substr(84, 1);
+		/* 스프레드기준종목구분코드*/
+
+		std::string gshcode = line.substr(85, 8);
+		/* 근월물코드                            */
+
+		std::string wshcode = line.substr(93, 8);
+		/* 원월물코드                           */
+
+		std::string product_code = shcode.substr(0, 3);
+
+
+
+		boost::trim_right(shcode);
+		boost::trim_right(hname);
+		boost::trim(item);
+		boost::trim(deli);
+		msg.Format(_T("code = %s, name = %s, name_kr = %s\n"), shcode.c_str(), hname.c_str(), item.c_str());
+		TRACE(msg);
+
+		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
+		SmProduct* product = market->FindAddProduct(product_code);
+		SmSymbol* sym = product->AddSymbol(shcode);
+		sym->Name(hname);
+		symMgr->AddSymbol(sym);
+		sym->ProductCode(product->Code());
+		sym->MarketName(product->MarketName());
+		sym->Decimal(std::stoi(deli));
+		sym->Seungsu(std::stoi(tradewin));
+		int hoga_unit = std::stoi(hounit);
+		int deci = std::stoi(deli);
+		double tick_size = hoga_unit / std::pow(10, deci);
+		sym->TickSize(tick_size);
+		sym->CtrUnit(tick_size);
+		double tick_value = std::stoi(tradewin) * tick_size;
+		sym->TickValue(tick_value);
+	}
+}
+
+void SmSymbolReader::ReadMiniKospiFutureFile(std::string fullPath)
+{
+	SmMarketManager* marketMgr = SmMarketManager::GetInstance();
+	std::string market_name = "국내시장";
+	SmMarket* market = marketMgr->AddMarket(market_name);
+	CString msg;
+	std::ifstream infile(fullPath);
+	std::string line;
+	while (std::getline(infile, line))
+	{
+		std::istringstream iss(line);
+
+		std::string shcode = line.substr(0, 8);
+		/* 종목코드                             */
+
+		std::string expcode = line.substr(8, 12);
+		/* 표준코드                               */
+
+		std::string hname = line.substr(20, 30);
+		/* 한글 종목명                      */
+
+		std::string item = line.substr(50, 6);
+		/* 기초자산코드                             */
+
+		std::string deli = line.substr(56, 2);
+		/* 소수점                          */
+
+		std::string hounit = line.substr(58, 5);
+		/*호가단위                          */
+
+		// 0이 8개 더 붙어 있어 일부러 13자리만 읽는다.
+		std::string tradewin = line.substr(63, 13);
+		/* 거래승수                         */
+
+		std::string spjmgubun = line.substr(84, 1);
+		/* 스프레드기준종목구분코드*/
+
+		std::string gshcode = line.substr(85, 8);
+		/* 근월물코드                            */
+
+		std::string wshcode = line.substr(93, 8);
+		/* 원월물코드                           */
+
+		std::string product_code = shcode.substr(0, 3);
+
+
+
+		boost::trim_right(shcode);
+		boost::trim_right(hname);
+		boost::trim(item);
+		boost::trim(deli);
+		msg.Format(_T("code = %s, name = %s, name_kr = %s\n"), shcode.c_str(), hname.c_str(), item.c_str());
+		TRACE(msg);
+
+		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
+		SmProduct* product = market->FindAddProduct(product_code);
+		SmSymbol* sym = product->AddSymbol(shcode);
+		sym->Name(hname);
+		symMgr->AddSymbol(sym);
+		sym->ProductCode(product->Code());
+		sym->MarketName(product->MarketName());
+		sym->Decimal(std::stoi(deli));
+		sym->Seungsu(std::stoi(tradewin));
+		int hoga_unit = std::stoi(hounit);
+		int deci = std::stoi(deli);
+		double tick_size = hoga_unit / std::pow(10, deci);
+		sym->TickSize(tick_size);
+		sym->CtrUnit(tick_size);
+		double tick_value = std::stoi(tradewin) * tick_size;
+		sym->TickValue(tick_value);
+	}
+}
+
+void SmSymbolReader::ReadCommodityFutureFile(std::string fullPath)
+{
+	SmMarketManager* marketMgr = SmMarketManager::GetInstance();
+	std::string market_name = "국내시장";
+	SmMarket* market = marketMgr->AddMarket(market_name);
+	CString msg;
+	std::ifstream infile(fullPath);
+	std::string line;
+	while (std::getline(infile, line))
+	{
+		std::istringstream iss(line);
+
+		std::string shcode = line.substr(0, 8);
+		/* 종목코드                             */
+
+		std::string expcode = line.substr(8, 12);
+		/* 표준코드                               */
+
+		std::string hname = line.substr(20, 30);
+		/* 한글 종목명                      */
+
+		std::string item = line.substr(50, 6);
+		/* 기초자산코드                             */
+
+		std::string deli = line.substr(56, 2);
+		/* 소수점                          */
+
+		std::string hounit = line.substr(58, 5);
+		/*호가단위                          */
+
+		// 0이 8개 더 붙어 있어 일부러 13자리만 읽는다.
+		std::string tradewin = line.substr(63, 13);
+		/* 거래승수                         */
+
+		std::string spjmgubun = line.substr(84, 1);
+		/* 스프레드기준종목구분코드*/
+
+		std::string gshcode = line.substr(85, 8);
+		/* 근월물코드                            */
+
+		std::string wshcode = line.substr(93, 8);
+		/* 원월물코드                           */
+
+		std::string product_code = shcode.substr(0, 3);
+
+
+
+		boost::trim_right(shcode);
+		boost::trim_right(hname);
+		boost::trim(item);
+		boost::trim(deli);
+		msg.Format(_T("code = %s, name = %s, name_kr = %s\n"), shcode.c_str(), hname.c_str(), item.c_str());
+		TRACE(msg);
+
+		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
+		SmProduct* product = market->FindAddProduct(product_code);
+		SmSymbol* sym = product->AddSymbol(shcode);
+		sym->Name(hname);
+		symMgr->AddSymbol(sym);
+		sym->ProductCode(product->Code());
+		sym->MarketName(product->MarketName());
+		sym->Decimal(std::stoi(deli));
+		sym->Seungsu(std::stoi(tradewin));
+		int hoga_unit = std::stoi(hounit);
+		int deci = std::stoi(deli);
+		double tick_size = hoga_unit / std::pow(10, deci);
+		sym->TickSize(tick_size);
+		sym->CtrUnit(tick_size);
+		double tick_value = std::stoi(tradewin) * tick_size;
+		sym->TickValue(tick_value);
+	}
+}
+
+void SmSymbolReader::ReadKospiFutureInfo(std::string fullPath)
+{
+	CString msg;
+	std::ifstream infile(fullPath);
+	std::string line;
+	while (std::getline(infile, line))
+	{
+		std::istringstream iss(line);
+
+		std::string shcode = line.substr(0, 8);
+		/* 종목코드                             */
+
+		std::string deli = line.substr(8, 2);
+		/* 소수점                          */
+
+		std::string tick_size = line.substr(10, 5);
+		/* 틱사이즈                               */
+
+		std::string tick_value = line.substr(15, 5);
+		/* 틱 밸류                      */
+
+		std::string trade_win = line.substr(20, 10);
+		/* 거래 승수                            */
+
+		
+		std::string near_month = line.substr(90, 2);
+		/*근월물                          */
+
+		std::string last_date = line.substr(92, 8);
+		/*최종거래일                         */
+
+
+
+		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
+		SmSymbol* sym = symMgr->FindSymbol(shcode);
+		if (sym) {
+			sym->Decimal(std::stoi(deli));
+			sym->Seungsu(std::stoi(trade_win));
+			sym->TickSize(std::stod(tick_size));
+			sym->TickValue(std::stod(tick_value));
+			sym->NearMonth(std::stoi(near_month));
+			sym->LastDate(last_date);
+		}
+	}
+}
+
+void SmSymbolReader::ReadKospiOptionInfo(std::string fullPath)
+{
+	CString msg;
+	std::ifstream infile(fullPath);
+	std::string line;
+	while (std::getline(infile, line))
+	{
+		std::istringstream iss(line);
+
+		std::string shcode = line.substr(0, 8);
+		/* 종목코드                             */
+
+		std::string deli = line.substr(8, 2);
+		/* 소수점                          */
+
+		std::string tick_size = line.substr(10, 5);
+		/* 틱사이즈                               */
+
+		std::string tick_value = line.substr(15, 5);
+		/* 틱 밸류                      */
+
+		std::string trade_win = line.substr(20, 10);
+		/* 거래 승수                            */
+
+
+		std::string near_month = line.substr(90, 2);
+		/*근월물                          */
+		if (near_month.compare("A"))
+			near_month = "10";
+		else if (near_month.compare("B"))
+			near_month = "11";
+		else if (near_month.compare("C"))
+			near_month = "12";
+		else if (near_month.compare("D"))
+			near_month = "13";
+		else if (near_month.compare("E"))
+			near_month = "14";
+		else if (near_month.compare("F"))
+			near_month = "15";
+
+		std::string last_date = line.substr(92, 8);
+		/*최종거래일                         */
+
+
+
+		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
+		SmSymbol* sym = symMgr->FindSymbol(shcode);
+		if (sym) {
+			sym->Decimal(std::stoi(deli));
+			sym->Seungsu(std::stoi(trade_win));
+			sym->TickSize(std::stod(tick_size));
+			sym->TickValue(std::stod(tick_value));
+			sym->NearMonth(std::stoi(near_month));
+			sym->LastDate(last_date);
+		}
+	}
+}
+
+void SmSymbolReader::ReadUsDollarFutureInfo(std::string fullPath)
+{
+	CString msg;
+	std::ifstream infile(fullPath);
+	std::string line;
+	while (std::getline(infile, line))
+	{
+		std::istringstream iss(line);
+
+		std::string shcode = line.substr(0, 8);
+		/* 종목코드                             */
+
+		std::string deli = line.substr(8, 2);
+		/* 소수점                          */
+
+		std::string tick_size = line.substr(10, 5);
+		/* 틱사이즈                               */
+
+		std::string tick_value = line.substr(15, 5);
+		/* 틱 밸류                      */
+
+		std::string trade_win = line.substr(20, 10);
+		/* 거래 승수                            */
+
+
+		std::string near_month = line.substr(90, 2);
+		/*근월물                          */
+		if (near_month.compare("A"))
+			near_month = "10";
+		else if (near_month.compare("B"))
+			near_month = "11";
+		else if (near_month.compare("C"))
+			near_month = "12";
+		else if (near_month.compare("D"))
+			near_month = "13";
+		else if (near_month.compare("E"))
+			near_month = "14";
+		else if (near_month.compare("F"))
+			near_month = "15";
+
+		std::string last_date = line.substr(92, 8);
+		/*최종거래일                         */
+
+
+
+		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
+		SmSymbol* sym = symMgr->FindSymbol(shcode);
+		if (sym) {
+			sym->Decimal(std::stoi(deli));
+			sym->Seungsu(std::stoi(trade_win));
+			sym->TickSize(std::stod(tick_size));
+			sym->TickValue(std::stod(tick_value));
+			sym->NearMonth(std::stoi(near_month));
+			sym->LastDate(last_date);
 		}
 	}
 }

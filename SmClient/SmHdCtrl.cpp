@@ -94,6 +94,10 @@ int SmHdCtrl::LogIn(CString id, CString pwd, CString cert)
 	int nRet = m_CommAgent.CommLogin(m_sUserId, m_sUserPw, m_sAuthPw);
 	if (nRet > 0) {
 		//AfxMessageBox(pLoginSuccess[0]);
+		CString sTrCode = "v90001";
+		CString sInput = "wopcode.cod";
+		CString strNextKey = "";
+		int nRqID = m_CommAgent.CommRqData(sTrCode, sInput, sInput.GetLength(), strNextKey);
 
 		//로긴후 반드시 호출...
 		m_CommAgent.CommAccInfo();

@@ -220,7 +220,7 @@
     <ClInclude Include="Scheduler\ctpl_stl.h" />
     <ClInclude Include="Scheduler\InterruptableSleep.h" />
     <ClInclude Include="Scheduler\Scheduler.h" />
-    <ClInclude Include="SmCategory.h" />
+    <ClInclude Include="SmProduct.h" />
     <ClInclude Include="SmChartData.h" />
     <ClInclude Include="SmChartDataManager.h" />
     <ClInclude Include="SmChartDefine.h" />
@@ -232,6 +232,7 @@
     <ClInclude Include="SmHdClient.h" />
     <ClInclude Include="SmHdCtrl.h" />
     <ClInclude Include="SmHogaDefine.h" />
+    <ClInclude Include="SmLogManager.h" />
     <ClInclude Include="SmMarket.h" />
     <ClInclude Include="SmMarketManager.h" />
     <ClInclude Include="SmMongoDBManager.h" />
@@ -294,7 +295,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="PropertiesWnd.cpp" />
-    <ClCompile Include="SmCategory.cpp" />
+    <ClCompile Include="SmProduct.cpp" />
     <ClCompile Include="SmChartData.cpp" />
     <ClCompile Include="SmChartDataManager.cpp" />
     <ClCompile Include="SmClient.cpp" />
@@ -306,6 +307,7 @@
     <ClCompile Include="SmHdCtrl.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SmLogManager.cpp" />
     <ClCompile Include="SmMarket.cpp" />
     <ClCompile Include="SmMarketManager.cpp" />
     <ClCompile Include="SmMongoDBManager.cpp">

@@ -220,7 +220,7 @@ void SmTimeSeriesServiceManager::OnSymbolMasterRequest(SmSymbolMasterRequest&& m
 	send_object["symbol_code"] = sym->SymbolCode();
 	send_object["name_kr"] = SmUtfUtil::AnsiToUtf8((char*)sym->Name().c_str());
 	send_object["name_en"] = sym->NameEn().c_str();
-	send_object["category_code"] = sym->CategoryCode();
+	send_object["category_code"] = sym->ProductCode();
 	send_object["market_name"] = SmUtfUtil::AnsiToUtf8((char*)sym->MarketName().c_str());
 	send_object["decimal"] = sym->Decimal();
 	send_object["contract_unit"] = sym->CtrUnit();

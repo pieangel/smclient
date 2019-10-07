@@ -18,5 +18,14 @@ private:
 	void ReadMarketFile();
 	void ReadPmFile();
 	void ReadJmFile();
+	void ReadKospiFutureFile(std::string fullPath);
+	void ReadKospiOptionFile(std::string fullPath);
+	void ReadKospiWeeklyOptionFile(std::string fullPath);
+	void ReadKosdaqFutureFile(std::string fullPath);
+	void ReadMiniKospiFutureFile(std::string fullPath);
+	void ReadCommodityFutureFile(std::string fullPath);
+	void ReadKospiFutureInfo(std::string fullPath);
+	void ReadKospiOptionInfo(std::string fullPath);
+	void ReadUsDollarFutureInfo(std::string fullPath);
 };
 

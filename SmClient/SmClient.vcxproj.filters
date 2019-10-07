@@ -250,9 +250,6 @@
     <ClInclude Include="SmMarket.h">
       <Filter>Market</Filter>
     </ClInclude>
-    <ClInclude Include="SmCategory.h">
-      <Filter>Market</Filter>
-    </ClInclude>
     <ClInclude Include="SmUtfUtil.h">
       <Filter>UtfUtil</Filter>
     </ClInclude>
@@ -282,6 +279,12 @@
     </ClInclude>
     <ClInclude Include="SmRealtimeSymbolServiceManager.h">
       <Filter>Server</Filter>
+    </ClInclude>
+    <ClInclude Include="SmLogManager.h">
+      <Filter>Log</Filter>
+    </ClInclude>
+    <ClInclude Include="SmProduct.h">
+      <Filter>Market</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -384,9 +387,6 @@
     <ClCompile Include="SmMarket.cpp">
       <Filter>Market</Filter>
     </ClCompile>
-    <ClCompile Include="SmCategory.cpp">
-      <Filter>Market</Filter>
-    </ClCompile>
     <ClCompile Include="SmUtfUtil.cpp">
       <Filter>UtfUtil</Filter>
     </ClCompile>
@@ -410,6 +410,12 @@
     </ClCompile>
     <ClCompile Include="SmRealtimeSymbolServiceManager.cpp">
       <Filter>Server</Filter>
+    </ClCompile>
+    <ClCompile Include="SmLogManager.cpp">
+      <Filter>Log</Filter>
+    </ClCompile>
+    <ClCompile Include="SmProduct.cpp">
+      <Filter>Market</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
