@@ -22,6 +22,7 @@ public:
 
 // Overrides
 public:
+	int RegisterOCX(CString strFileName);
 	virtual BOOL InitInstance();
 	virtual int ExitInstance();
 
