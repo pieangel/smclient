@@ -200,19 +200,24 @@ void SmHdCtrl::RequestChartDataFromQ()
 
 void SmHdCtrl::GetChartData(SmChartDataRequest req)
 {
-	
-	if (req.chartType == SmChartType::TICK)
-		GetChartDataLongCycle(req);
-	else if (req.chartType == SmChartType::MIN)
-		GetChartDataShortCycle(req);
-	else if (req.chartType == SmChartType::DAY)
-		GetChartDataLongCycle(req);
-	else if (req.chartType == SmChartType::WEEK)
-		GetChartDataLongCycle(req);
-	else if (req.chartType == SmChartType::MON)
-		GetChartDataLongCycle(req);
-	else
-		GetChartDataShortCycle(req);
+	if (std::isdigit(req.symbolCode.at(2))) {
+		GetChartDataForDomestic(req);
+	} 
+	else {
+
+		if (req.chartType == SmChartType::TICK)
+			GetChartDataLongCycle(req);
+		else if (req.chartType == SmChartType::MIN)
+			GetChartDataShortCycle(req);
+		else if (req.chartType == SmChartType::DAY)
+			GetChartDataLongCycle(req);
+		else if (req.chartType == SmChartType::WEEK)
+			GetChartDataLongCycle(req);
+		else if (req.chartType == SmChartType::MON)
+			GetChartDataLongCycle(req);
+		else
+			GetChartDataShortCycle(req);
+	}
 }
 
 
@@ -335,6 +340,64 @@ void SmHdCtrl::GetChartDataLongCycle(SmChartDataRequest req)
 	//int nRqID = m_CommAgent.CommFIDRqData(sTrCode, sInput, sReqFidInput, sInput.GetLength(), strNextKey);
 	int nRqID = m_CommAgent.CommRqData(sTrCode, sInput, sInput.GetLength(), strNextKey);
 	//TRACE(sInput);
+	_ChartDataReqMap[nRqID] = req;
+}
+
+void SmHdCtrl::GetChartDataForDomestic(SmChartDataRequest req)
+{
+	std::string temp;
+	std::string reqString;
+
+	temp = VtStringUtil::PadRight(req.symbolCode, ' ', 15);
+	reqString.append(temp);
+
+	std::string str = VtStringUtil::getCurentDate();
+	reqString.append(str);
+
+	reqString.append(_T("999999"));
+
+	temp = VtStringUtil::PadLeft(req.count, '0', 4);
+	reqString.append(temp);
+
+	temp = VtStringUtil::PadLeft(req.cycle, '0', 3);
+	reqString.append(temp);
+
+	if (req.chartType == SmChartType::TICK)
+		reqString.append("0");
+	else if (req.chartType == SmChartType::MIN)
+		reqString.append("1");
+	else if (req.chartType == SmChartType::DAY)
+		reqString.append("2");
+	else if (req.chartType == SmChartType::WEEK)
+		reqString.append("3");
+	else if (req.chartType == SmChartType::MON)
+		reqString.append("4");
+	else
+		reqString.append("1");
+
+	if (req.next == 0)
+		reqString.append(_T("0"));
+	else
+		reqString.append(_T("1"));
+
+	temp = VtStringUtil::PadRight(req.reqKey, ' ', 21);
+	reqString.append(temp);
+
+	reqString.append(_T("0"));
+	reqString.append(_T("0"));
+	reqString.append(_T("00"));
+	reqString.append(_T("000000"));
+	reqString.append(_T(" "));
+
+	if (req.seq == 0)
+		reqString.append(_T("0"));
+	else
+		reqString.append(_T("1"));
+
+	CString sTrCode = "v90003";
+	CString sInput = reqString.c_str();
+	CString strNextKey = _T("");
+	int nRqID = m_CommAgent.CommRqData(sTrCode, sInput, sInput.GetLength(), "");
 	_ChartDataReqMap[nRqID] = req;
 }
 
