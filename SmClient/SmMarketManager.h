@@ -3,6 +3,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <set>
 class SmMarket;
 class SmProduct;
 class SmSymbol;
@@ -33,6 +34,7 @@ public:
 	}
 
 	void requestRecentAllSise();
+	bool IsInRunList(std::string product_code);
 private:
 	void SendSymbolMaster(std::string user_id, SmSymbol* sym);
 	std::vector<SmMarket*> _MarketList;
@@ -43,5 +45,6 @@ private:
 	/// 값 : 시장 이름
 	/// </summary>
 	std::map<std::string, std::string> _CategoryToMarketMap;
+	std::set<std::string> _DomesticList;
 };
 

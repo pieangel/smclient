@@ -1,7 +1,7 @@
 #pragma once
 #include "Global/TemplateSingleton.h"
 #include <string>
-
+#include <set>
 class SmSymbolReader : public TemplateSingleton<SmSymbolReader>
 {
 public:
@@ -27,5 +27,6 @@ private:
 	void ReadKospiFutureInfo(std::string fullPath);
 	void ReadKospiOptionInfo(std::string fullPath);
 	void ReadUsDollarFutureInfo(std::string fullPath);
+	std::set<std::string> _DomesticList;
 };
 

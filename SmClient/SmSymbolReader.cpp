@@ -12,9 +12,26 @@
 #include "SmTimeSeriesServiceManager.h"
 #include "SmSymbolManager.h"
 #include "SmTimeSeriesDBManager.h"
+#include "SmConfigManager.h"
+#include "Xml/pugixml.hpp"
+
 namespace fs = std::filesystem;
 SmSymbolReader::SmSymbolReader()
 {
+	SmConfigManager* configMgr = SmConfigManager::GetInstance();
+	std::string appPath = configMgr->GetApplicationPath();
+	std::string configPath = appPath;
+	configPath.append(_T("\\Config\\Config.xml"));
+	pugi::xml_document doc;
+	pugi::xml_parse_result result = doc.load_file(configPath.c_str());
+	pugi::xml_node app = doc.first_child();
+	pugi::xml_node domestic_list_node = doc.child("application").child("domestic_list");
+	pugi::xml_node domestic_node = domestic_list_node.first_child();
+	while (domestic_node) {
+		std::string code = domestic_node.text().as_string();
+		_DomesticList.insert(code);
+		domestic_node = domestic_node.next_sibling();
+	}
 }
 
 
@@ -541,6 +558,10 @@ void SmSymbolReader::ReadKospiFutureFile(std::string fullPath)
 
 		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 		SmProduct* product = market->FindAddProduct(product_code);
+		product->MarketName(market_name);
+		product->NameKr("코스피200선물");
+		product->NameKr("Kospi200F");
+
 		SmSymbol* sym = product->AddSymbol(shcode);
 		sym->Name(hname);
 		symMgr->AddSymbol(sym);
@@ -617,6 +638,9 @@ void SmSymbolReader::ReadKospiOptionFile(std::string fullPath)
 
 		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 		SmProduct* product = market->FindAddProduct(product_code);
+		product->MarketName(market_name);
+		product->NameKr("코스피200옵션");
+		product->NameKr("Kospi200O");
 		SmSymbol* sym = product->AddSymbol(shcode);
 		sym->Name(hname);
 		symMgr->AddSymbol(sym);
@@ -694,6 +718,9 @@ void SmSymbolReader::ReadKospiWeeklyOptionFile(std::string fullPath)
 
 		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 		SmProduct* product = market->FindAddProduct(product_code);
+		product->MarketName(market_name);
+		product->NameKr("코스피200위클리선물");
+		product->NameKr("Kospi200WeeklyF");
 		SmSymbol* sym = product->AddSymbol(shcode);
 		sym->Name(hname);
 		symMgr->AddSymbol(sym);
@@ -768,6 +795,10 @@ void SmSymbolReader::ReadKosdaqFutureFile(std::string fullPath)
 
 		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 		SmProduct* product = market->FindAddProduct(product_code);
+		product->MarketName(market_name);
+		product->NameKr("코스닥150선물");
+		product->NameKr("Kosdaqq150F");
+
 		SmSymbol* sym = product->AddSymbol(shcode);
 		sym->Name(hname);
 		symMgr->AddSymbol(sym);
@@ -841,6 +872,10 @@ void SmSymbolReader::ReadMiniKospiFutureFile(std::string fullPath)
 
 		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 		SmProduct* product = market->FindAddProduct(product_code);
+		product->MarketName(market_name);
+		product->NameKr("코스피200미니선물");
+		product->NameKr("Kospi200MiniF");
+
 		SmSymbol* sym = product->AddSymbol(shcode);
 		sym->Name(hname);
 		symMgr->AddSymbol(sym);
@@ -914,6 +949,10 @@ void SmSymbolReader::ReadCommodityFutureFile(std::string fullPath)
 
 		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 		SmProduct* product = market->FindAddProduct(product_code);
+		product->MarketName(market_name);
+		product->NameKr("코스피상품선물");
+		product->NameKr("KospiCommodityF");
+
 		SmSymbol* sym = product->AddSymbol(shcode);
 		sym->Name(hname);
 		symMgr->AddSymbol(sym);
@@ -962,7 +1001,7 @@ void SmSymbolReader::ReadKospiFutureInfo(std::string fullPath)
 		std::string last_date = line.substr(92, 8);
 		/*최종거래일                         */
 
-
+		SmMarketManager* mrktMgr = SmMarketManager::GetInstance();
 
 		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 		SmSymbol* sym = symMgr->FindSymbol(shcode);

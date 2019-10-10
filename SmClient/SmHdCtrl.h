@@ -141,6 +141,7 @@ private:
 	void RequestChartDataFromQ();
 	void OnRcvdAbroadHoga(CString& strKey, LONG& nRealType);
 	void OnRcvdAbroadSise(CString& strKey, LONG& nRealType);
+	void OnRcvdDomesticChartData(CString& sTrCode, LONG& nRqID);
 	void OnRcvdAbroadSiseByReq(CString& sTrCode, LONG& nRqID);
 	void OnRcvdAbroadHogaByReq(CString& sTrCode, LONG& nRqID);
 	void OnRcvdAbroadChartData(CString& sTrCode, LONG& nRqID);
@@ -148,6 +149,15 @@ private:
 	void GetChartDataShortCycle(SmChartDataRequest req);
 	void GetChartDataLongCycle(SmChartDataRequest req);
 	void GetChartDataForDomestic(SmChartDataRequest req);
+	void OnDomesticSymbolMaster(CString& sTrCode, LONG& nRqID);
+
+	void OnFutureHoga(CString& sTrCode, LONG& nRqID);
+	void OnOptionHoga(CString& sTrCode, LONG& nRqID);
+	void OnProductHoga(CString& sTrCode, LONG& nRqID);
+
+	void OnRealFutureQuote(CString& strKey, LONG& nRealType);
+	void OnRealOptionQuote(CString& strKey, LONG& nRealType);
+	void OnRealProductQuote(CString& strKey, LONG& nRealType);
 	/// <summary>
 	/// 차트 데이터 요청 맵 
 	/// 키 : 요청 번호

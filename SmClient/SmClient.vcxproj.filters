@@ -286,6 +286,9 @@
     <ClInclude Include="SmProduct.h">
       <Filter>Market</Filter>
     </ClInclude>
+    <ClInclude Include="SmProductYearMonth.h">
+      <Filter>Market</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HDCtrl\hdfcommagent.cpp">
@@ -415,6 +418,9 @@
       <Filter>Log</Filter>
     </ClCompile>
     <ClCompile Include="SmProduct.cpp">
+      <Filter>Market</Filter>
+    </ClCompile>
+    <ClCompile Include="SmProductYearMonth.cpp">
       <Filter>Market</Filter>
     </ClCompile>
   </ItemGroup>

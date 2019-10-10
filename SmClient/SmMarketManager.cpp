@@ -19,6 +19,8 @@
 #include "SmSymbol.h"
 #include "SmProduct.h"
 #include "SmHdClient.h"
+#include "SmConfigManager.h"
+#include "SmProductYearMonth.h"
 
 using namespace std::chrono;
 using namespace nlohmann;
@@ -26,6 +28,20 @@ using namespace nlohmann;
 
 SmMarketManager::SmMarketManager()
 {
+	SmConfigManager* configMgr = SmConfigManager::GetInstance();
+	std::string appPath = configMgr->GetApplicationPath();
+	std::string configPath = appPath;
+	configPath.append(_T("\\Config\\Config.xml"));
+	pugi::xml_document doc;
+	pugi::xml_parse_result result = doc.load_file(configPath.c_str());
+	pugi::xml_node app = doc.first_child();
+	pugi::xml_node domestic_list_node = doc.child("application").child("domestic_list");
+	pugi::xml_node domestic_node = domestic_list_node.first_child();
+	while (domestic_node) {
+		std::string code = domestic_node.text().as_string();
+		_DomesticList.insert(code);
+		domestic_node = domestic_node.next_sibling();
+	}
 }
 
 
@@ -126,9 +142,16 @@ std::vector<SmSymbol*> SmMarketManager::GetRecentMonthSymbolList()
 		SmMarket* mrkt = *it;
 		auto cat_vec = mrkt->GetProductList();
 		for (auto itc = cat_vec.begin(); itc != cat_vec.end(); ++itc) {
-			SmSymbol* sym = (*itc)->GetRecentMonthSymbol();
-			if (sym)
-				symvec.push_back(sym);
+			if (!IsInRunList((*itc)->Code())) {
+				continue;
+			}
+			SmProductYearMonth* ym = (*itc)->GetRecentYearMonth();
+			if (ym) {
+				for (auto itym = ym->SymbolList.begin(); itym != ym->SymbolList.end(); ++itym) {
+					(*itym)->Quote.SymbolCode = (*itym)->SymbolCode();
+					symvec.push_back(*itym);
+				}
+			}
 		}
 	}
 
@@ -212,6 +235,20 @@ void SmMarketManager::requestRecentAllSise()
 	for (auto it = symVec.begin(); it != symVec.end(); ++it) {
 		SmSymbol* sym = *it;
 		SmHdClient::GetInstance()->GetSiseData(sym->SymbolCode());
+	}
+}
+
+bool SmMarketManager::IsInRunList(std::string product_code)
+{
+	if (product_code.length() > 2 && std::isdigit(product_code.at(2))) {
+		auto it = _DomesticList.find(product_code);
+		if (it == _DomesticList.end())
+			return false;
+		else
+			return true;
+	}
+	else {
+		return true;
 	}
 }
 

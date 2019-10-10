@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <map>
+class SmProductYearMonth;
 class SmSymbol;
 class SmProduct
 {
@@ -28,6 +30,7 @@ public:
 		return _SymbolList;
 	}
 	SmSymbol* GetRecentMonthSymbol();
+	SmProductYearMonth* GetRecentYearMonth();
 private:
 	// 품목코드
 	std::string _Code;
@@ -58,5 +61,7 @@ private:
 	/// </summary>
 	std::string _MarketCode;
 	std::vector<SmSymbol*> _SymbolList;
+	std::map<std::string, SmProductYearMonth*> _YearMonthMap;
+	void AddToYearMonth(std::string symbol_code, SmSymbol* symbol);
 };
 
