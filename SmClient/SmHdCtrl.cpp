@@ -157,7 +157,7 @@ void SmHdCtrl::LogOut()
 
 void SmHdCtrl::RegisterProduct(std::string symCode)
 {
-	if (std::isdigit(symCode.at(2))) {
+	if (std::isdigit(symCode.at(2))) { // 국내선물
 		int nRealType = 0;
 		int nResult = 0;
 		CString strKey = symCode.c_str();
@@ -166,15 +166,19 @@ void SmHdCtrl::RegisterProduct(std::string symCode)
 		if (first == '1' || first == '4') {
 			TCHAR second = symCode.at(1);
 			if (second == '0') {
-				nRealType = 51;
+				nRealType = 51; // 시세
 				nResult = m_CommAgent.CommSetBroad(strKey, nRealType);
-				nRealType = 65;
+				nRealType = 65; // 호가
+				nResult = m_CommAgent.CommSetBroad(strKey, nRealType);
+				nRealType = 310; // 예상 체결가
 				nResult = m_CommAgent.CommSetBroad(strKey, nRealType);
 			}
 			else {
-				nRealType = 58;
+				nRealType = 58; // 시세
 				nResult = m_CommAgent.CommSetBroad(strKey, nRealType);
-				nRealType = 71;
+				nRealType = 71; // 호가
+				nResult = m_CommAgent.CommSetBroad(strKey, nRealType);
+				nRealType = 310; // 예상체결가
 				nResult = m_CommAgent.CommSetBroad(strKey, nRealType);
 			}
 		}
@@ -183,13 +187,15 @@ void SmHdCtrl::RegisterProduct(std::string symCode)
 			nResult = m_CommAgent.CommSetBroad(strKey, nRealType);
 			nRealType = 66;
 			nResult = m_CommAgent.CommSetBroad(strKey, nRealType);
+			nRealType = 310; // 예상체결가
+			nResult = m_CommAgent.CommSetBroad(strKey, nRealType);
 		}
 	}
-	else {
+	else { // 해외선물
 		std::string key = VtStringUtil::PadRight(symCode, ' ', 32);
-		int nRealType = 76;
+		int nRealType = 76; // 시세
 		m_CommAgent.CommSetBroad(key.c_str(), nRealType);
-		nRealType = 82;
+		nRealType = 82; // 호가
 		m_CommAgent.CommSetBroad(key.c_str(), nRealType);
 	}
 }
