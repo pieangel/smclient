@@ -27,6 +27,7 @@
 #include <future>
 #include <string>
 #include <mutex>
+#include "SmMarketManager.h"
 
 using namespace nlohmann;
 // VtHdCtrl dialog
@@ -97,7 +98,7 @@ int SmHdCtrl::LogIn(CString id, CString pwd, CString cert)
 		CString sTrCode = "v90001";
 		CString sInput = "wopcode.cod";
 		CString strNextKey = "";
-		int nRqID = m_CommAgent.CommRqData(sTrCode, sInput, sInput.GetLength(), strNextKey);
+		//int nRqID = m_CommAgent.CommRqData(sTrCode, sInput, sInput.GetLength(), strNextKey);
 
 		//로긴후 반드시 호출...
 		m_CommAgent.CommAccInfo();
@@ -219,35 +220,47 @@ void SmHdCtrl::UnregisterProduct(std::string symCode)
 
 void SmHdCtrl::RequestChartData(SmChartDataRequest req)
 {
+	std::lock_guard<std::mutex> lock(_mutex);
+
+	LOG_F(INFO, "RequestChartData %s", req.GetDataKey().c_str());
 	_ChartDataReqQueue.push(req);
 
 	if (_ChartDataReqQueue.size() > 1)
 		return;
 
-	SmChartDataRequest qReq = _ChartDataReqQueue.front();
-
-	GetChartData(qReq);
-
-	_ChartDataReqQueue.pop();
+	GetChartData(_ChartDataReqQueue.front());
 }
 
 void SmHdCtrl::RequestChartDataFromQ()
 {
-	if (_ChartDataReqQueue.size() == 0)
-		return;
-	SmChartDataRequest qReq = _ChartDataReqQueue.front();
-
-	GetChartData(qReq);
-
-	_ChartDataReqQueue.pop();
+	if (!_ChartDataReqQueue.empty()) {
+		_ChartDataReqQueue.pop();
+		GetChartData(_ChartDataReqQueue.front());
+	}
 }
 
 void SmHdCtrl::GetChartData(SmChartDataRequest req)
 {
+	LOG_F(INFO, "GetChartData symbol Code: %s", req.symbolCode.c_str());
+	LOG_F(INFO, "GetChartData : %s", req.GetDataKey().c_str());
+	if (req.GetDataKey().length() < 8)
+		return;
 	if (std::isdigit(req.symbolCode.at(2))) {
-		GetChartDataForDomestic(req);
+		if (req.symbolCode.length() < 8)
+			return;
+		std::string prefix = req.symbolCode.substr(0, 3);
+		// 운영 목록에 있는 것만 요청을 한다.
+		if (SmMarketManager::GetInstance()->IsInRunList(prefix))
+			GetChartDataForDomestic(req);
 	} 
 	else {
+
+		if (req.symbolCode.length() < 4)
+			return;
+		// 심볼 테이블에 있는 것만 요청을 한다.
+		SmSymbol* sym = SmSymbolManager::GetInstance()->FindSymbol(req.symbolCode);
+		if (!sym)
+			return;
 
 		if (req.chartType == SmChartType::TICK)
 			GetChartDataLongCycle(req);
@@ -440,6 +453,7 @@ void SmHdCtrl::GetChartDataForDomestic(SmChartDataRequest req)
 
 	CString sTrCode = "v90003";
 	CString sInput = reqString.c_str();
+	LOG_F(INFO, "GetChartDataDomestic %s", reqString.c_str());
 	CString strNextKey = _T("");
 	int nRqID = m_CommAgent.CommRqData(sTrCode, sInput, sInput.GetLength(), "");
 	_ChartDataReqMap[nRqID] = req;
@@ -815,8 +829,8 @@ void SmHdCtrl::OnRcvdDomesticChartData(CString& sTrCode, LONG& nRqID)
 		if (strDate.GetLength() == 0)
 			continue;
 
-		msg.Format(_T("OnRcvdAbroadChartData ::code = %s, index = %d, date = %s, t = %s, o = %s, h = %s, l = %s, c = %s, v = %s\n"), req.symbolCode.c_str(), i, strDate, strTime, strOpen, strHigh, strLow, strClose, strVol);
-		TRACE(msg);
+		//msg.Format(_T("OnRcvdAbroadChartData ::code = %s, index = %d, date = %s, t = %s, o = %s, h = %s, l = %s, c = %s, v = %s\n"), req.symbolCode.c_str(), i, strDate, strTime, strOpen, strHigh, strLow, strClose, strVol);
+		//TRACE(msg);
 
 		SmChartDataItem data;
 		data.symbolCode = req.symbolCode;
@@ -845,6 +859,11 @@ void SmHdCtrl::OnRcvdDomesticChartData(CString& sTrCode, LONG& nRqID)
 		}
 	}
 
+	LOG_F(INFO, "OnRcvdDomesticChartData %s", req.GetDataKey().c_str());
+
+	// 아직 처리되지 못한 데이터는 큐를 통해서 처리한다.
+	RequestChartDataFromQ();
+
 	// 차트 데이터 수신 요청 목록에서 제거한다.
 	_ChartDataReqMap.erase(it);
 	// 주기데이터가 도착했음을 알린다.
@@ -853,10 +872,9 @@ void SmHdCtrl::OnRcvdDomesticChartData(CString& sTrCode, LONG& nRqID)
 			// 차트 데이터 수신 완료를 알릴다.
 			SmTimeSeriesServiceManager* tsSvcMgr = SmTimeSeriesServiceManager::GetInstance();
 			tsSvcMgr->OnCompleteChartCycleData(req);
+			
 		}
 		else {
-			// 아직 처리되지 못한 데이터는 큐를 통해서 처리한다.
-			RequestChartDataFromQ();
 			// 차트 데이터 수신 완료를 알릴다.
 			SmTimeSeriesServiceManager* tsSvcMgr = SmTimeSeriesServiceManager::GetInstance();
 			tsSvcMgr->OnCompleteChartData(req, chart_data);
@@ -1090,6 +1108,12 @@ void SmHdCtrl::OnRcvdAbroadChartData(CString& sTrCode, LONG& nRqID)
 		}
 	}
 
+
+	LOG_F(INFO, "OnRcvdAbroadChartData %s", req.GetDataKey().c_str());
+
+	// 아직 처리되지 못한 데이터는 큐를 통해서 처리한다.
+	RequestChartDataFromQ();
+
 	// 차트 데이터 수신 요청 목록에서 제거한다.
 	_ChartDataReqMap.erase(it);
 	// 주기데이터가 도착했음을 알린다.
@@ -1098,10 +1122,11 @@ void SmHdCtrl::OnRcvdAbroadChartData(CString& sTrCode, LONG& nRqID)
 			// 차트 데이터 수신 완료를 알릴다.
 			SmTimeSeriesServiceManager* tsSvcMgr = SmTimeSeriesServiceManager::GetInstance();
 			tsSvcMgr->OnCompleteChartCycleData(req);
+			
+			
 		}
 		else {
-			// 아직 처리되지 못한 데이터는 큐를 통해서 처리한다.
-			RequestChartDataFromQ();
+			
 			// 차트 데이터 수신 완료를 알릴다.
 			SmTimeSeriesServiceManager* tsSvcMgr = SmTimeSeriesServiceManager::GetInstance();
 			tsSvcMgr->OnCompleteChartData(req, chart_data);
@@ -1187,6 +1212,9 @@ void SmHdCtrl::OnRcvdAbroadChartData2(CString& sTrCode, LONG& nRqID)
 		}
 	}
 
+	LOG_F(INFO, "OnRcvdAbroadChartData2 %s", req.GetDataKey().c_str());
+
+	RequestChartDataFromQ();
 	// 차트 데이터 수신 요청 목록에서 제거한다.
 	_ChartDataReqMap.erase(it);
 	// 주기데이터가 도착했음을 알린다.
@@ -1197,7 +1225,6 @@ void SmHdCtrl::OnRcvdAbroadChartData2(CString& sTrCode, LONG& nRqID)
 			tsSvcMgr->OnCompleteChartCycleData(req);
 		}
 		else {
-			RequestChartDataFromQ();
 			// 차트 데이터 수신 완료를 알릴다.
 			SmTimeSeriesServiceManager* tsSvcMgr = SmTimeSeriesServiceManager::GetInstance();
 			tsSvcMgr->OnCompleteChartData(req, chart_data);
@@ -1625,7 +1652,7 @@ void SmHdCtrl::OnRealFutureQuote(CString& strKey, LONG& nRealType)
 	sessMgr->SendReqUpdateQuote(sym);
 
 	CString msg;
-	msg.Format(_T("symbol = %s, time = %s, h=%s, l=%s, o=%s, c=%s, v=%s, ratio = %s\n"), strSymCode, strTime, strHigh, strLow, strOpen, strClose, strVolume, strRatioToPreDay);
+	//msg.Format(_T("symbol = %s, time = %s, h=%s, l=%s, o=%s, c=%s, v=%s, ratio = %s\n"), strSymCode, strTime, strHigh, strLow, strOpen, strClose, strVolume, strRatioToPreDay);
 	//TRACE(msg);
 }
 
@@ -1689,7 +1716,7 @@ void SmHdCtrl::OnRealOptionQuote(CString& strKey, LONG& nRealType)
 	sessMgr->SendReqUpdateQuote(sym);
 
 	CString msg;
-	msg.Format(_T("symbol = %s, time = %s, h=%s, l=%s, o=%s, c=%s, v=%s, ratio = %s\n"), strSymCode, strTime, strHigh, strLow, strOpen, strClose, strVolume, strRatioToPreDay);
+	//msg.Format(_T("symbol = %s, time = %s, h=%s, l=%s, o=%s, c=%s, v=%s, ratio = %s\n"), strSymCode, strTime, strHigh, strLow, strOpen, strClose, strVolume, strRatioToPreDay);
 	//TRACE(msg);
 }
 
@@ -1753,7 +1780,7 @@ void SmHdCtrl::OnRealProductQuote(CString& strKey, LONG& nRealType)
 	sessMgr->SendReqUpdateQuote(sym);
 
 	CString msg;
-	msg.Format(_T("symbol = %s, time = %s, h=%s, l=%s, o=%s, c=%s, v=%s, ratio = %s\n"), strSymCode, strTime, strHigh, strLow, strOpen, strClose, strVolume, strRatioToPreDay);
+	//msg.Format(_T("symbol = %s, time = %s, h=%s, l=%s, o=%s, c=%s, v=%s, ratio = %s\n"), strSymCode, strTime, strHigh, strLow, strOpen, strClose, strVolume, strRatioToPreDay);
 	//TRACE(msg);
 }
 
@@ -1768,6 +1795,8 @@ void SmHdCtrl::OnGetMsgWithRqId(int nRqId, CString strCode, CString strMsg)
 	CString msg;
 	msg.Format(_T("req_id = %d, hd_server_code = %s, hd_server_msg = %s\n"), nRqId, strCode, strMsg);
 	TRACE(msg);
+
+	LOG_F(INFO, "OnGetMsgWithRqId %s", msg);
 
 	if (strCode.CompareNoCase(_T("0332")) == 0) {
 		//AfxMessageBox(_T("종목 다운로드 완료"));

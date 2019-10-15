@@ -66,3 +66,8 @@ void SmHdClient::GetHogaData(std::string symCode)
 {
 	_HdCtrl->GetHogaData(symCode);
 }
+
+void SmHdClient::RequestChartData(SmChartDataRequest req)
+{
+	_HdCtrl->RequestChartData(req);
+}

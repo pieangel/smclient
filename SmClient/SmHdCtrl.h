@@ -4,6 +4,7 @@
 #include <map>
 #include "SmChartDefine.h"
 #include <queue>
+#include <mutex>
 
 #pragma once
 // °èÁÂ
@@ -167,4 +168,5 @@ private:
 	std::map<int, std::string> _SiseDataReqMap;
 	std::queue< SmChartDataRequest> _ChartDataReqQueue;
 	bool _Requested = false;
+	std::mutex _mutex;
 };

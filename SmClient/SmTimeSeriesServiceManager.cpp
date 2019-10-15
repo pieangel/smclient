@@ -159,6 +159,8 @@ void SmTimeSeriesServiceManager::SendChartData(int req_session_id, int total_cou
 	send_object["c"] = item.c;
 	send_object["v"] = item.v;
 
+	LOG_F(INFO, "SendChartData %s", item.GetDataKey().c_str());
+
 	std::string content = send_object.dump();
 	SmSessionManager::GetInstance()->Send(content);
 }

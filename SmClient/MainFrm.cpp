@@ -16,6 +16,7 @@
 #include "SmHdClient.h"
 #include "SmMongoDBManager.h"
 #include "SmMarketManager.h"
+#include "SmLogManager.h"
 #include "SmRealtimeSymbolServiceManager.h"
 
 #ifdef _DEBUG
@@ -463,6 +464,8 @@ void CMainFrame::OnClose()
 void CMainFrame::OnShowWindow(BOOL bShow, UINT nStatus)
 {
 	CMDIFrameWndEx::OnShowWindow(bShow, nStatus);
+
+	SmLogManager::GetInstance()->InitLog();
 
 	SmSymbolReader* symReader = SmSymbolReader::GetInstance();
 	SmConfigManager* configMgr = SmConfigManager::GetInstance();

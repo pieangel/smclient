@@ -19,7 +19,7 @@ SmLogManager::~SmLogManager()
 void SmLogManager::InitLog()
 {
 	SmConfigManager* configMgr = SmConfigManager::GetInstance();
-	std::string fileName = _T("SmServer.log");
+	std::string fileName = _T("SmClient.log");
 	std::string appPath;
 	appPath = configMgr->GetApplicationPath();
 	appPath.append(_T("\\"));

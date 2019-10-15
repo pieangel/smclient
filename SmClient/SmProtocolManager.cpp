@@ -17,6 +17,7 @@
 #include "SmChartData.h"
 #include "SmMarketManager.h"
 #include "SmHdClient.h"
+#include "Log/loguru.hpp"
 using namespace nlohmann;
 SmProtocolManager::SmProtocolManager()
 {
@@ -432,6 +433,9 @@ void SmProtocolManager::OnReqChartDataFromMainServer(nlohmann::json& obj)
 		req.cycle = cycle;
 		req.count = count;
 		req.next = 0;
+
+		LOG_F(INFO, "OnReqChartDataFromMainServer : %s", req.GetDataKey().c_str());
+
 		SmHdClient* client = SmHdClient::GetInstance();
 		client->GetChartData(req);
 	}
