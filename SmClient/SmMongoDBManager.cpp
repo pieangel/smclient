@@ -175,8 +175,10 @@ void SmMongoDBManager::ReadSymbol()
 	SmConfigManager* configMgr = SmConfigManager::GetInstance();
 	std::string appPath = configMgr->GetApplicationPath();
 
-	mrktMgr->ReadAbroadSymbolsFromFile();
+	// 국내 시장 파일 읽어 오기
 	mrktMgr->ReadDomesticSymbolsFromFile();
+	// 해외 시장 파일 읽어 오기
+	mrktMgr->ReadAbroadSymbolsFromFile();
 
 	SaveMarketsToDatabase();
 

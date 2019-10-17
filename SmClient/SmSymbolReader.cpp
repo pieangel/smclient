@@ -51,40 +51,40 @@ void SmSymbolReader::ReadSymbolFromFile(int index, std::string fullPath)
 	switch (index)
 	{
 	case 0:
-		ReadMarketFile(fullPath);
-		break;
-	case 1:
-		ReadPmFile(fullPath);
-		break;
-	case 2:
-		ReadJmFile(fullPath);
-		break;
-	case 3:
 		ReadKospiFutureFile(fullPath);
 		break;
-	case 4:
+	case 1:
 		ReadKospiOptionFile(fullPath);
 		break;
-	case 5:
+	case 2:
 		ReadKospiWeeklyOptionFile(fullPath);
 		break;
-	case 6:
+	case 3:
 		ReadKosdaqFutureFile(fullPath);
 		break;
-	case 7:
+	case 4:
 		ReadMiniKospiFutureFile(fullPath);
 		break;
-	case 8:
+	case 5:
 		ReadCommodityFutureFile(fullPath);
 		break;
-	case 9:
+	case 6:
 		ReadKospiFutureInfo(fullPath);
 		break;
-	case 10:
+	case 7:
 		ReadKospiOptionInfo(fullPath);
 		break;
-	case 11:
+	case 8:
 		ReadUsDollarFutureInfo(fullPath);
+		break;
+	case 9:
+		ReadMarketFile(fullPath);
+		break;
+	case 10:
+		ReadPmFile(fullPath);
+		break;
+	case 11:
+		ReadJmFile(fullPath);
 		break;
 	default:
 		break;

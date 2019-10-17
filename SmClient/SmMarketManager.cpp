@@ -67,7 +67,7 @@ void SmMarketManager::ReadAbroadSymbolsFromFile()
 	pugi::xml_node app = doc.first_child();
 	pugi::xml_node sym_file_list = app.first_child();
 	pugi::xml_node abroad_list = sym_file_list.first_child();
-	int index = 0;
+	int index = 9;
 	for (auto it = abroad_list.begin(); it != abroad_list.end(); ++it) {
 		std::string file_name = it->text().as_string();
 		TRACE(file_name.c_str());
@@ -91,7 +91,7 @@ void SmMarketManager::ReadDomesticSymbolsFromFile()
 	pugi::xml_node app = doc.first_child();
 	pugi::xml_node sym_file_list = app.first_child();
 	pugi::xml_node abroad_list = sym_file_list.first_child().next_sibling();
-	int index = 3;
+	int index = 0;
 	for (auto it = abroad_list.begin(); it != abroad_list.end(); ++it) {
 		std::string file_name = it->text().as_string();
 		TRACE(file_name.c_str());
