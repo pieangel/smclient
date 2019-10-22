@@ -469,7 +469,7 @@ void SmSymbolReader::ReadJmFile(std::string fullPath)
 		boost::trim_right(SeriesNmKor);
 		boost::trim_right(MrktCd);
 		msg.Format(_T("code = %s, name = %s, name_kr = %s\n"), Series.c_str(), SeriesNm.c_str(), SeriesNmKor.c_str());
-		TRACE(msg);
+		//TRACE(msg);
 
 		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 		SmProduct* cat = marketMgr->FindProduct(MrktCd);
@@ -554,10 +554,11 @@ void SmSymbolReader::ReadKospiFutureFile(std::string fullPath)
 		boost::trim(item);
 		boost::trim(deli);
 		msg.Format(_T("code = %s, name = %s, name_kr = %s\n"), shcode.c_str(), hname.c_str(), item.c_str());
-		TRACE(msg);
+		//TRACE(msg);
 
 		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 		SmProduct* product = market->FindAddProduct(product_code);
+		marketMgr->AddCategoryMarket(product_code, market_name);
 		product->MarketName(market_name);
 		product->NameKr("코스피200선물");
 		product->NameKr("Kospi200F");
@@ -634,10 +635,11 @@ void SmSymbolReader::ReadKospiOptionFile(std::string fullPath)
 		boost::trim(item);
 		boost::trim(deli);
 		msg.Format(_T("code = %s, name = %s, name_kr = %s\n"), shcode.c_str(), hname.c_str(), item.c_str());
-		TRACE(msg);
+		//TRACE(msg);
 
 		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 		SmProduct* product = market->FindAddProduct(product_code);
+		marketMgr->AddCategoryMarket(product_code, market_name);
 		product->MarketName(market_name);
 		product->NameKr("코스피200옵션");
 		product->NameKr("Kospi200O");
@@ -714,10 +716,11 @@ void SmSymbolReader::ReadKospiWeeklyOptionFile(std::string fullPath)
 		boost::trim(item);
 		boost::trim(deli);
 		msg.Format(_T("code = %s, name = %s, name_kr = %s\n"), shcode.c_str(), hname.c_str(), item.c_str());
-		TRACE(msg);
+		//TRACE(msg);
 
 		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 		SmProduct* product = market->FindAddProduct(product_code);
+		marketMgr->AddCategoryMarket(product_code, market_name);
 		product->MarketName(market_name);
 		product->NameKr("코스피200위클리선물");
 		product->NameKr("Kospi200WeeklyF");
@@ -791,10 +794,11 @@ void SmSymbolReader::ReadKosdaqFutureFile(std::string fullPath)
 		boost::trim(item);
 		boost::trim(deli);
 		msg.Format(_T("code = %s, name = %s, name_kr = %s\n"), shcode.c_str(), hname.c_str(), item.c_str());
-		TRACE(msg);
+		//TRACE(msg);
 
 		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 		SmProduct* product = market->FindAddProduct(product_code);
+		marketMgr->AddCategoryMarket(product_code, market_name);
 		product->MarketName(market_name);
 		product->NameKr("코스닥150선물");
 		product->NameKr("Kosdaqq150F");
@@ -868,10 +872,11 @@ void SmSymbolReader::ReadMiniKospiFutureFile(std::string fullPath)
 		boost::trim(item);
 		boost::trim(deli);
 		msg.Format(_T("code = %s, name = %s, name_kr = %s\n"), shcode.c_str(), hname.c_str(), item.c_str());
-		TRACE(msg);
+		//TRACE(msg);
 
 		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 		SmProduct* product = market->FindAddProduct(product_code);
+		marketMgr->AddCategoryMarket(product_code, market_name);
 		product->MarketName(market_name);
 		product->NameKr("코스피200미니선물");
 		product->NameKr("Kospi200MiniF");
@@ -945,10 +950,11 @@ void SmSymbolReader::ReadCommodityFutureFile(std::string fullPath)
 		boost::trim(item);
 		boost::trim(deli);
 		msg.Format(_T("code = %s, name = %s, name_kr = %s\n"), shcode.c_str(), hname.c_str(), item.c_str());
-		TRACE(msg);
+		//TRACE(msg);
 
 		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 		SmProduct* product = market->FindAddProduct(product_code);
+		marketMgr->AddCategoryMarket(product_code, market_name);
 		product->MarketName(market_name);
 		product->NameKr("코스피상품선물");
 		product->NameKr("KospiCommodityF");
@@ -1122,7 +1128,6 @@ void SmSymbolReader::ReadUsDollarFutureInfo(std::string fullPath)
 		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 		SmSymbol* sym = symMgr->FindSymbol(shcode);
 		if (sym) {
-			sym->Decimal(std::stoi(deli));
 			sym->Seungsu(std::stoi(trade_win));
 			sym->TickSize(std::stod(tick_size));
 			sym->TickValue(std::stod(tick_value));

@@ -20,6 +20,7 @@ public:
 	void GetSiseData(std::string symCode);
 	void GetHogaData(std::string symCode);
 	void RequestChartData(SmChartDataRequest req);
+	void DownloadDomesticMasterFile(std::string file_name);
 private:
 	SmHdCtrl* _HdCtrl = nullptr;
 };

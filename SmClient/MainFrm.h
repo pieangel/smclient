@@ -61,6 +61,7 @@ public:
 	afx_msg void OnServerLogin();
 	afx_msg void OnClose();
 	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 private:
 	SmNetClient* _Client = nullptr;
 public:

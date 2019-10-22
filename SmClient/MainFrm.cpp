@@ -33,6 +33,7 @@ const UINT uiLastUserToolBarId = uiFirstUserToolBarId + iMaxUserToolbars - 1;
 
 BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWndEx)
 	ON_WM_CREATE()
+	ON_WM_TIMER()
 	ON_COMMAND(ID_WINDOW_MANAGER, &CMainFrame::OnWindowManager)
 	ON_COMMAND(ID_VIEW_CUSTOMIZE, &CMainFrame::OnViewCustomize)
 	ON_REGISTERED_MESSAGE(AFX_WM_CREATETOOLBAR, &CMainFrame::OnToolbarCreateNew)
@@ -487,10 +488,32 @@ void CMainFrame::OnShowWindow(BOOL bShow, UINT nStatus)
 		AfxMessageBox(_T("Login Error!"));
 	}
 
-	hdClient->DownloadMasterFiles("futures");
-
+	pugi::xml_node sym_file_list = doc.child("application").child("symbol_file_list");
+	pugi::xml_node domestic_list = sym_file_list.first_child().next_sibling();
+	int index = 0;
+	for (auto it = domestic_list.begin(); it != domestic_list.end(); ++it) {
+		std::string file_name = it->text().as_string();
+		TRACE(file_name.c_str());
+		symReader->DomesticSymbolMasterFileSet.insert(file_name);
+	}
+	
+	SetTimer(1, 500, 0);
 }
 
+
+void CMainFrame::OnTimer(UINT_PTR nIDEvent)
+{
+	SmSymbolReader* symReader = SmSymbolReader::GetInstance();
+	SmHdClient* hdClient = SmHdClient::GetInstance();
+	if (symReader->DomesticSymbolMasterFileSet.size() > 0) {
+		std::string file_name = *(symReader->DomesticSymbolMasterFileSet.begin());
+		hdClient->DownloadDomesticMasterFile(file_name);
+	} 
+	else {
+		KillTimer(1);
+		hdClient->DownloadMasterFiles("futures");
+	}
+}
 
 void CMainFrame::OnServerRegisterproduct()
 {

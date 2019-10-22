@@ -138,7 +138,11 @@ public:
 	void GetSiseData(std::string symCode);
 	void GetHogaData(std::string symCode);
 	void RequestChartData(SmChartDataRequest req);
+	void DownloadDomesticMasterFile(std::string file_name);
+	void DownloadDomesticMasterFiles();
 private:
+	int _DomesticMasterFileRemCount = 0;
+	bool _FileDownloading = false;
 	void RequestChartDataFromQ();
 	void OnRcvdAbroadHoga(CString& strKey, LONG& nRealType);
 	void OnRcvdAbroadSise(CString& strKey, LONG& nRealType);

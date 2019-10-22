@@ -633,11 +633,13 @@ void SmMongoDBManager::SaveMarketsToDatabase()
 		auto c = _ConnPool->acquire();
 
 		auto db = (*c)["andromeda"];
+
 		using namespace bsoncxx;
 
 		// 먼저 시장이 있는지 검색한다. 
 		// 그리고 시장 속에 상품이 있는지 검색한다.
 		mongocxx::collection coll = db["market_list"];
+		coll.drop();
 		
 		builder::stream::document builder{};
 
@@ -714,6 +716,7 @@ void SmMongoDBManager::SaveSymbolsToDatabase()
 		// 먼저 시장이 있는지 검색한다. 
 		// 그리고 시장 속에 상품이 있는지 검색한다.
 		mongocxx::collection coll = db["symbol_list"];
+		coll.drop();
 
 		builder::stream::document builder{};
 
@@ -743,6 +746,7 @@ void SmMongoDBManager::SaveSymbolsToDatabase()
 							<< "seungsu" << sym->Seungsu()
 							<< "tick_size" << sym->TickSize()
 							<< "tick_value" << sym->TickValue()
+							<< "atm" << sym->Atm()
 							<< "near_month" << sym->NearMonth()
 							<< "last_date" << sym->LastDate()
 							<< bsoncxx::builder::stream::finalize;

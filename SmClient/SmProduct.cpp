@@ -42,6 +42,14 @@ SmProductYearMonth* SmProduct::GetRecentYearMonth()
 		return _YearMonthMap.begin()->second;
 }
 
+SmProductYearMonth* SmProduct::GetNextYearMonth()
+{
+	if (_YearMonthMap.size() <= 1)
+		return nullptr;
+	else
+		return (++_YearMonthMap.begin())->second;
+}
+
 void SmProduct::AddToYearMonth(std::string symbol_code, SmSymbol* symbol)
 {
 	if (!symbol)

@@ -2,6 +2,8 @@
 #include "Global/TemplateSingleton.h"
 #include <string>
 #include <set>
+#include <queue>
+#include <map>
 class SmSymbolReader : public TemplateSingleton<SmSymbolReader>
 {
 public:
@@ -11,6 +13,7 @@ public:
 public:
 	std::string GetWorkingDir();
 	void ReadSymbolFromFile(int index, std::string fullPath);
+	std::set<std::string> DomesticSymbolMasterFileSet;
 private:
 	void ReadMarketFile(std::string fullPath);
 	void ReadPmFile(std::string fullPath);

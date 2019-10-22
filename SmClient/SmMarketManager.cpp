@@ -147,6 +147,13 @@ std::vector<SmSymbol*> SmMarketManager::GetRecentMonthSymbolList()
 			}
 			SmProductYearMonth* ym = (*itc)->GetRecentYearMonth();
 			if (ym) {
+				if (ym->ProductCode.compare("175") == 0) {
+					SmSymbol* recent_symbol = GetRecentSymbol(ym->ProductCode);
+					std::string current_date = VtStringUtil::getCurentDate();
+					if (current_date.compare(recent_symbol->LastDate()) >= 0) {
+						ym = (*itc)->GetNextYearMonth();
+					}
+				}
 				for (auto itym = ym->SymbolList.begin(); itym != ym->SymbolList.end(); ++itym) {
 					(*itym)->Quote.SymbolCode = (*itym)->SymbolCode();
 					symvec.push_back(*itym);
@@ -156,6 +163,30 @@ std::vector<SmSymbol*> SmMarketManager::GetRecentMonthSymbolList()
 	}
 
 	return symvec;
+}
+
+SmSymbol* SmMarketManager::GetRecentSymbol(std::string market_name, std::string product_name)
+{
+	SmMarket* market = FindMarket(market_name);
+	if (!market)
+		return nullptr;
+	SmProduct* product = market->FindProduct(product_name);
+	if (!product)
+		return nullptr;
+	SmProductYearMonth* ym = product->GetRecentYearMonth();
+	if (ym->SymbolList.size() == 0)
+		return nullptr;
+	return *ym->SymbolList.begin();
+}
+
+SmSymbol* SmMarketManager::GetRecentSymbol(std::string product_name)
+{
+	auto it = _CategoryToMarketMap.find(product_name);
+	if (it == _CategoryToMarketMap.end())
+		return nullptr;
+	std::string market_name = it->second;
+
+	return GetRecentSymbol(market_name, product_name);
 }
 
 void SmMarketManager::SendMarketList(std::string user_id)

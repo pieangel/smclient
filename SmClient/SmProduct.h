@@ -31,6 +31,7 @@ public:
 	}
 	SmSymbol* GetRecentMonthSymbol();
 	SmProductYearMonth* GetRecentYearMonth();
+	SmProductYearMonth* GetNextYearMonth();
 private:
 	// 품목코드
 	std::string _Code;

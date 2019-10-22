@@ -25,6 +25,8 @@ public:
 	void AddCategoryMarket(std::string cat_code, std::string mrkt_name);
 	SmProduct* FindProduct(std::string cat_code);
 	std::vector<SmSymbol*> GetRecentMonthSymbolList();
+	SmSymbol* GetRecentSymbol(std::string market_name, std::string product_name);
+	SmSymbol* GetRecentSymbol(std::string product_name);
 	void SendMarketList(std::string user_id);
 	void SendSymbolListByCategory(std::string user_id);
 	int GetTotalCategoryCount();

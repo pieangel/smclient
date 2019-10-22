@@ -71,3 +71,8 @@ void SmHdClient::RequestChartData(SmChartDataRequest req)
 {
 	_HdCtrl->RequestChartData(req);
 }
+
+void SmHdClient::DownloadDomesticMasterFile(std::string file_name)
+{
+	_HdCtrl->DownloadDomesticMasterFile(file_name);
+}
