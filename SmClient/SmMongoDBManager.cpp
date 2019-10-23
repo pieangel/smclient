@@ -410,6 +410,7 @@ void SmMongoDBManager::SaveHoga(SmHoga hoga)
 				<< "tot_sell_cnt" << hoga.TotSellCnt
 				<< "domestic_date" << hoga.DomesticDate
 				<< "domestic_time" << hoga.DomesticTime
+				<< "time" << hoga.DomesticTime
 
 				<< bsoncxx::builder::stream::finalize;
 
@@ -462,6 +463,7 @@ void SmMongoDBManager::SaveHoga(SmHoga hoga)
 				<< "tot_sell_cnt" << hoga.TotSellCnt
 				<< "domestic_date" << hoga.DomesticDate
 				<< "domestic_time" << hoga.DomesticTime
+				<< "time" << hoga.DomesticTime
 				<< close_document << finalize);
 		}
 		

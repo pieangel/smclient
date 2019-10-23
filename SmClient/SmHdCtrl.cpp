@@ -1885,15 +1885,23 @@ void SmHdCtrl::OnGetMsg(CString strCode, CString strMsg)
 
 void SmHdCtrl::OnGetMsgWithRqId(int nRqId, CString strCode, CString strMsg)
 {
-	CString msg;
-	msg.Format(_T("req_id = %d, hd_server_code = %s, hd_server_msg = %s\n"), nRqId, strCode, strMsg);
-	TRACE(msg);
+	try
+	{
+		CString msg;
+		msg.Format(_T("req_id = %d, hd_server_code = %s, hd_server_msg = %s\n"), nRqId, strCode, strMsg);
+		TRACE(msg);
 
-	LOG_F(INFO, "OnGetMsgWithRqId %s", msg);
+		LOG_F(INFO, "OnGetMsgWithRqId %s", msg);
 
-	if (strCode.CompareNoCase(_T("0332")) == 0) {
-		//AfxMessageBox(_T("종목 다운로드 완료"));
-		SmMongoDBManager* mongo = SmMongoDBManager::GetInstance();
-		mongo->ReadSymbol();
+		if (strCode.CompareNoCase(_T("0332")) == 0) {
+			//AfxMessageBox(_T("종목 다운로드 완료"));
+			SmMongoDBManager* mongo = SmMongoDBManager::GetInstance();
+			mongo->ReadSymbol();
+		}
+	}
+	catch (std::exception e)
+	{
+		std::string error_msg = e.what();
+		LOG_F(INFO, "Exception OnGetMsgWithRqId %s", error_msg.c_str());
 	}
 }
