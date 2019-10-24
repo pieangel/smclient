@@ -1669,8 +1669,8 @@ void SmHdCtrl::OnProductHoga(CString& strKey, LONG& nRealType)
 	//dbMgr->SaveHogaItem(std::move(hoga_data));
 
 	CString msg;
-	msg.Format(_T("hoga :: time = %s, tot_buy_cnt = %d\n"), sym->Hoga.SymbolCode.c_str(), sym->Hoga.TotBuyCnt);
-	//TRACE(msg);
+	msg.Format(_T("hoga :: code = %s, tot_buy_cnt = %d\n"), strSymCode, sym->Hoga.Ary[0].BuyPrice);
+	TRACE(msg);
 }
 
 

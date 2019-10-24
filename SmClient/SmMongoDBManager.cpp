@@ -498,6 +498,7 @@ void SmMongoDBManager::SaveSise(SmQuote quote)
 		if (!found_quote) {
 			// 차트 데이터에 대한 정보를 저장한다.
 			bsoncxx::document::value doc_chart_data = builder
+				<< "time" << quote.OriginTime
 				<< "symbol_code" << symbol_code
 				<< "sign_to_preday" << quote.SignToPreDay
 				<< "gap_from_preday" << quote.GapFromPreDay
@@ -518,6 +519,7 @@ void SmMongoDBManager::SaveSise(SmQuote quote)
 				bsoncxx::builder::stream::document{} << "$set"
 				<< open_document
 
+				<< "time" << quote.OriginTime
 				<< "symbol_code" << symbol_code
 				<< "sign_to_preday" << quote.SignToPreDay
 				<< "gap_from_preday" << quote.GapFromPreDay
