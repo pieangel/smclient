@@ -310,7 +310,7 @@ void SmHdCtrl::GetChartDataShortCycle(SmChartDataRequest req)
 
 	std::string str = VtStringUtil::getCurentDate();
 	CString msg;
-	msg.Format("%s \n", str.c_str());
+	//msg.Format("%s \n", str.c_str());
 	//TRACE(msg);
 	reqString.append(str);
 	reqString.append(str);
@@ -482,6 +482,7 @@ void SmHdCtrl::GetChartDataForDomestic(SmChartDataRequest req)
 
 void SmHdCtrl::OnDomesticSymbolMaster(CString& sTrCode, LONG& nRqID)
 {
+	try {
 	int nRepeatCnt = m_CommAgent.CommGetRepeatCnt(sTrCode, -1, "OutRec1");
 	CString	strSymCode = m_CommAgent.CommGetData(sTrCode, -1, "OutRec1", 0, "단축코드");
 
@@ -544,8 +545,8 @@ void SmHdCtrl::OnDomesticSymbolMaster(CString& sTrCode, LONG& nRqID)
 	sessMgr->SendReqUpdateQuote(sym);
 
 	CString msg;
-	msg.Format(_T("symbol = %s, time = %s, h=%s, l=%s, o=%s, c=%s, ratio = %s, gap = %s\n"), strSymCode, strTime, strHigh, strLow, strOpen, strClose, strRatioToPreDay, strToPreDay);
-	TRACE(msg);
+	//msg.Format(_T("symbol = %s, time = %s, h=%s, l=%s, o=%s, c=%s, ratio = %s, gap = %s\n"), strSymCode, strTime, strHigh, strLow, strOpen, strClose, strRatioToPreDay, strToPreDay);
+	//TRACE(msg);
 
 	CString strHogaTime = m_CommAgent.CommGetData(sTrCode, -1, "OutRec1", 0, "호가수신시간");
 
@@ -614,8 +615,14 @@ void SmHdCtrl::OnDomesticSymbolMaster(CString& sTrCode, LONG& nRqID)
 	sessMgr->SendReqUpdateHoga(sym);
 
 	
-	msg.Format(_T("hoga :: time = %s, tot_buy_cnt = %d\n"), sym->Hoga.SymbolCode.c_str(), sym->Hoga.TotBuyCnt);
+	//msg.Format(_T("hoga :: time = %s, tot_buy_cnt = %d\n"), sym->Hoga.SymbolCode.c_str(), sym->Hoga.TotBuyCnt);
 	//TRACE(msg);
+	}
+	catch (std::exception e)
+	{
+		std::string error = e.what();
+		LOG_F(INFO, "%s", error);
+	}
 }
 
 void SmHdCtrl::DownloadMasterFiles(std::string param)
@@ -671,6 +678,7 @@ void SmHdCtrl::GetHogaData(std::string symCode)
 
 void SmHdCtrl::OnRcvdAbroadHoga(CString& strKey, LONG& nRealType)
 {
+	try {
 	SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 	CString strSymCode = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "종목코드");
 	SmSymbol* sym = symMgr->FindSymbol((LPCTSTR)strSymCode.Trim());
@@ -751,12 +759,19 @@ void SmHdCtrl::OnRcvdAbroadHoga(CString& strKey, LONG& nRealType)
 	//dbMgr->SaveHogaItem(std::move(hoga_data));
 
 	CString msg;
-	msg.Format(_T("hoga :: time = %s, tot_buy_cnt = %d\n"), sym->Hoga.SymbolCode.c_str(), sym->Hoga.TotBuyCnt);
+	//msg.Format(_T("hoga :: time = %s, tot_buy_cnt = %d\n"), sym->Hoga.SymbolCode.c_str(), sym->Hoga.TotBuyCnt);
 	//TRACE(msg);
+	}
+	catch (std::exception e)
+	{
+		std::string error = e.what();
+		LOG_F(INFO, "%s", error);
+	}
 }
 
 void SmHdCtrl::OnRcvdAbroadSise(CString& strKey, LONG& nRealType)
 {
+	try {
 	CString strSymCode = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "종목코드");
 	CString strTime = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "체결시간");
 	CString strSignToPreDay = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "전일대비구분");
@@ -808,12 +823,19 @@ void SmHdCtrl::OnRcvdAbroadSise(CString& strKey, LONG& nRealType)
 	sessMgr->SendReqUpdateQuote(sym);
 
 	CString msg;
-	msg.Format(_T("symbol = %s, time = %s, h=%s, l=%s, o=%s, c=%s, v=%s, ratio = %s\n"), strSymCode, strTime, strHigh, strLow, strOpen, strClose, strVolume, strRatioToPreDay);
+	//msg.Format(_T("symbol = %s, time = %s, h=%s, l=%s, o=%s, c=%s, v=%s, ratio = %s\n"), strSymCode, strTime, strHigh, strLow, strOpen, strClose, strVolume, strRatioToPreDay);
 	//TRACE(msg);
+	}
+	catch (std::exception e)
+	{
+		std::string error = e.what();
+		LOG_F(INFO, "%s", error);
+	}
 }
 
 void SmHdCtrl::OnRcvdDomesticChartData(CString& sTrCode, LONG& nRqID)
 {
+	try {
 	int nRepeatCnt = m_CommAgent.CommGetRepeatCnt(sTrCode, -1, "OutRec2");
 	//influxdb_cpp::server_info si("127.0.0.1", 8086, "abroad_future", "angelpie", "orion1");
 	//influxdb_cpp::server_info si("127.0.0.1", 8086, "test_x", "test", "test");
@@ -905,29 +927,27 @@ void SmHdCtrl::OnRcvdDomesticChartData(CString& sTrCode, LONG& nRqID)
 			SmTimeSeriesServiceManager* tsSvcMgr = SmTimeSeriesServiceManager::GetInstance();
 			tsSvcMgr->OnCompleteChartData(req, chart_data);
 
-			try
-			{
-				if (_SaveChartData) {
-					std::async(std::launch::async, [chart_vec] {
-						for (auto it = chart_vec.begin(); it != chart_vec.end(); ++it) {
-							SmChartDataItem item = *it;
-							SmMongoDBManager::GetInstance()->SaveChartDataItem(item);
-						}
-						});
-				}
+			if (_SaveChartData) {
+				std::async(std::launch::async, [chart_vec] {
+					for (auto it = chart_vec.begin(); it != chart_vec.end(); ++it) {
+						SmChartDataItem item = *it;
+						SmMongoDBManager::GetInstance()->SaveChartDataItem(item);
+					}
+					});
 			}
-			catch (std::exception e)
-			{
-				std::string error = e.what();
-				LOG_F(INFO, "%s", error);
-			}
-
 		}
+	}
+	}
+	catch (std::exception e)
+	{
+		std::string error = e.what();
+		LOG_F(INFO, "%s", error);
 	}
 }
 
 void SmHdCtrl::OnRcvdAbroadSiseByReq(CString& sTrCode, LONG& nRqID)
 {
+	try {
 	int nRepeatCnt = m_CommAgent.CommGetRepeatCnt(sTrCode, -1, "OutRec1");
 	for (int i = 0; i < nRepeatCnt; i++)
 	{
@@ -935,8 +955,8 @@ void SmHdCtrl::OnRcvdAbroadSiseByReq(CString& sTrCode, LONG& nRqID)
 		CString strData2 = m_CommAgent.CommGetData(sTrCode, -1, "OutRec1", i, "한글종목명");
 		CString strData3 = m_CommAgent.CommGetData(sTrCode, -1, "OutRec1", i, "현재가");
 		CString msg;
-		msg.Format(_T("code = %s, name = %s, close = %s\n"), strData1, strData2, strData3);
-		TRACE(msg);
+		//msg.Format(_T("code = %s, name = %s, close = %s\n"), strData1, strData2, strData3);
+		//TRACE(msg);
 
 		CString strSymCode = m_CommAgent.CommGetData(sTrCode, -1, "OutRec1", 0, "종목코드");
 		CString strTime = m_CommAgent.CommGetData(sTrCode, -1, "OutRec1", 0, "국내시간");
@@ -986,13 +1006,20 @@ void SmHdCtrl::OnRcvdAbroadSiseByReq(CString& sTrCode, LONG& nRqID)
 		sessMgr->SendReqUpdateQuote(sym);
 
 		//CString msg;
-		msg.Format(_T("symbol = %s, time = %s, h=%s, l=%s, o=%s, c=%s, ratio = %s\n"), strSymCode, strTime, strHigh, strLow, strOpen, strClose, strRatioToPreDay);
-		TRACE(msg);
+		//msg.Format(_T("symbol = %s, time = %s, h=%s, l=%s, o=%s, c=%s, ratio = %s\n"), strSymCode, strTime, strHigh, strLow, strOpen, strClose, strRatioToPreDay);
+		//TRACE(msg);
+	}
+	}
+	catch (std::exception e)
+	{
+		std::string error = e.what();
+		LOG_F(INFO, "%s", error);
 	}
 }
 
 void SmHdCtrl::OnRcvdAbroadHogaByReq(CString& sTrCode, LONG& nRqID)
 {
+	try {
 	int nRepeatCnt = m_CommAgent.CommGetRepeatCnt(sTrCode, -1, "OutRec1");
 	for (int i = 0; i < nRepeatCnt; i++)
 	{
@@ -1068,13 +1095,20 @@ void SmHdCtrl::OnRcvdAbroadHogaByReq(CString& sTrCode, LONG& nRqID)
 		sessMgr->SendReqUpdateHoga(sym);
 
 		CString msg;
-		msg.Format(_T("hoga :: time = %s, tot_buy_cnt = %d\n"), sym->Hoga.SymbolCode.c_str(), sym->Hoga.TotBuyCnt);
+		//msg.Format(_T("hoga :: time = %s, tot_buy_cnt = %d\n"), sym->Hoga.SymbolCode.c_str(), sym->Hoga.TotBuyCnt);
 		//TRACE(msg);
+	}
+	}
+	catch (std::exception e)
+	{
+		std::string error = e.what();
+		LOG_F(INFO, "%s", error);
 	}
 }
 
 void SmHdCtrl::OnRcvdAbroadChartData(CString& sTrCode, LONG& nRqID)
 {
+	try {
 	int nRepeatCnt = m_CommAgent.CommGetRepeatCnt(sTrCode, -1, "OutRec1");
 	//influxdb_cpp::server_info si("127.0.0.1", 8086, "abroad_future", "angelpie", "orion1");
 	//influxdb_cpp::server_info si("127.0.0.1", 8086, "test_x", "test", "test");
@@ -1104,8 +1138,8 @@ void SmHdCtrl::OnRcvdAbroadChartData(CString& sTrCode, LONG& nRqID)
 		if (strDate.GetLength() == 0)
 			continue;
 		
-		msg.Format(_T("OnRcvdAbroadChartData ::code = %s, index = %d, date = %s, t = %s, o = %s, h = %s, l = %s, c = %s, v = %s\n"), req.symbolCode.c_str(), i, strDate, strTime, strOpen, strHigh, strLow, strClose, strVol);
-		TRACE(msg);
+		//msg.Format(_T("OnRcvdAbroadChartData ::code = %s, index = %d, date = %s, t = %s, o = %s, h = %s, l = %s, c = %s, v = %s\n"), req.symbolCode.c_str(), i, strDate, strTime, strOpen, strHigh, strLow, strClose, strVol);
+		//TRACE(msg);
 
 		SmChartDataItem data;
 		data.symbolCode = req.symbolCode;
@@ -1176,11 +1210,18 @@ void SmHdCtrl::OnRcvdAbroadChartData(CString& sTrCode, LONG& nRqID)
 			
 		}
 	}
+	}
+	catch (std::exception e)
+	{
+		std::string error = e.what();
+		LOG_F(INFO, "%s", error);
+	}
 }
 
 
 void SmHdCtrl::OnRcvdAbroadChartData2(CString& sTrCode, LONG& nRqID)
 {
+	try {
 	int nRepeatCnt = m_CommAgent.CommGetRepeatCnt(sTrCode, -1, "OutRec2");
 	//influxdb_cpp::server_info si("127.0.0.1", 8086, "abroad_future", "angelpie", "orion1");
 	//influxdb_cpp::server_info si("127.0.0.1", 8086, "test_x", "test", "test");
@@ -1255,23 +1296,21 @@ void SmHdCtrl::OnRcvdAbroadChartData2(CString& sTrCode, LONG& nRqID)
 			SmTimeSeriesServiceManager* tsSvcMgr = SmTimeSeriesServiceManager::GetInstance();
 			tsSvcMgr->OnCompleteChartData(req, chart_data);
 
-			try
-			{
-				if (_SaveChartData) {
-					std::async(std::launch::async, [chart_vec] {
-						for (auto it = chart_vec.begin(); it != chart_vec.end(); ++it) {
-							SmChartDataItem item = *it;
-							SmMongoDBManager::GetInstance()->SaveChartDataItem(item);
-						}
-						});
-				}
-			}
-			catch (std::exception e)
-			{
-				std::string error = e.what();
-				LOG_F(INFO, "%s", error);
+			if (_SaveChartData) {
+				std::async(std::launch::async, [chart_vec] {
+					for (auto it = chart_vec.begin(); it != chart_vec.end(); ++it) {
+						SmChartDataItem item = *it;
+						SmMongoDBManager::GetInstance()->SaveChartDataItem(item);
+					}
+					});
 			}
 		}
+	}
+	}
+	catch (std::exception e)
+	{
+		std::string error = e.what();
+		LOG_F(INFO, "%s", error);
 	}
 }
 
@@ -1415,6 +1454,7 @@ void SmHdCtrl::OnGetBroadData(CString strKey, LONG nRealType)
 
 void SmHdCtrl::OnFutureHoga(CString& strKey, LONG& nRealType)
 {
+	try {
 	SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 	CString strSymCode = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "종목코드");
 	SmSymbol* sym = symMgr->FindSymbol((LPCTSTR)strSymCode.Trim());
@@ -1495,12 +1535,19 @@ void SmHdCtrl::OnFutureHoga(CString& strKey, LONG& nRealType)
 	//dbMgr->SaveHogaItem(std::move(hoga_data));
 
 	CString msg;
-	msg.Format(_T("hoga :: time = %s, tot_buy_cnt = %d\n"), sym->Hoga.SymbolCode.c_str(), sym->Hoga.TotBuyCnt);
+	//msg.Format(_T("hoga :: time = %s, tot_buy_cnt = %d\n"), sym->Hoga.SymbolCode.c_str(), sym->Hoga.TotBuyCnt);
 	//TRACE(msg);
+	}
+	catch (std::exception e)
+	{
+		std::string error = e.what();
+		LOG_F(INFO, "%s", error);
+	}
 }
 
 void SmHdCtrl::OnOptionHoga(CString& strKey, LONG& nRealType)
 {
+	try {
 	SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
 	CString strSymCode = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "종목코드");
 	SmSymbol* sym = symMgr->FindSymbol((LPCTSTR)strSymCode.Trim());
@@ -1581,12 +1628,19 @@ void SmHdCtrl::OnOptionHoga(CString& strKey, LONG& nRealType)
 	//dbMgr->SaveHogaItem(std::move(hoga_data));
 
 	CString msg;
-	msg.Format(_T("hoga :: time = %s, tot_buy_cnt = %d\n"), sym->Hoga.SymbolCode.c_str(), sym->Hoga.TotBuyCnt);
+	//msg.Format(_T("hoga :: time = %s, tot_buy_cnt = %d\n"), sym->Hoga.SymbolCode.c_str(), sym->Hoga.TotBuyCnt);
 	//TRACE(msg);
+	}
+	catch (std::exception e)
+	{
+		std::string error = e.what();
+		LOG_F(INFO, "%s", error);
+	}
 }
 
 void SmHdCtrl::OnProductHoga(CString& strKey, LONG& nRealType)
 {
+	try {
 	CString strSymCode = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "kfutcode");
 
 	SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
@@ -1669,13 +1723,20 @@ void SmHdCtrl::OnProductHoga(CString& strKey, LONG& nRealType)
 	//dbMgr->SaveHogaItem(std::move(hoga_data));
 
 	CString msg;
-	msg.Format(_T("hoga :: code = %s, tot_buy_cnt = %d\n"), strSymCode, sym->Hoga.Ary[0].BuyPrice);
-	TRACE(msg);
+	//msg.Format(_T("hoga :: code = %s, tot_buy_cnt = %d\n"), strSymCode, sym->Hoga.Ary[0].BuyPrice);
+	//TRACE(msg);
+	}
+	catch (std::exception e)
+	{
+		std::string error = e.what();
+		LOG_F(INFO, "%s", error);
+	}
 }
 
 
 void SmHdCtrl::OnRealFutureQuote(CString& strKey, LONG& nRealType)
 {
+	try {
 	CString strSymCode = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "종목코드");
 	CString strTime = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "체결시간");
 	CString strSignToPreDay = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "사인");
@@ -1743,10 +1804,17 @@ void SmHdCtrl::OnRealFutureQuote(CString& strKey, LONG& nRealType)
 	CString msg;
 	//msg.Format(_T("symbol = %s, time = %s, h=%s, l=%s, o=%s, c=%s, v=%s, ratio = %s\n"), strSymCode, strTime, strHigh, strLow, strOpen, strClose, strVolume, strRatioToPreDay);
 	//TRACE(msg);
+	}
+	catch (std::exception e)
+	{
+		std::string error = e.what();
+		LOG_F(INFO, "%s", error);
+	}
 }
 
 void SmHdCtrl::OnRealOptionQuote(CString& strKey, LONG& nRealType)
 {
+	try {
 	CString strSymCode = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "종목코드");
 	CString strTime = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "체결시간");
 	CString strSignToPreDay = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "사인");
@@ -1807,10 +1875,17 @@ void SmHdCtrl::OnRealOptionQuote(CString& strKey, LONG& nRealType)
 	CString msg;
 	//msg.Format(_T("symbol = %s, time = %s, h=%s, l=%s, o=%s, c=%s, v=%s, ratio = %s\n"), strSymCode, strTime, strHigh, strLow, strOpen, strClose, strVolume, strRatioToPreDay);
 	//TRACE(msg);
+	}
+	catch (std::exception e)
+	{
+		std::string error = e.what();
+		LOG_F(INFO, "%s", error);
+	}
 }
 
 void SmHdCtrl::OnRealProductQuote(CString& strKey, LONG& nRealType)
 {
+	try {
 	CString strSymCode = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "종목코드");
 	CString strTime = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "체결시간");
 	CString strSignToPreDay = m_CommAgent.CommGetData(strKey, nRealType, "OutRec1", 0, "sign");
@@ -1875,6 +1950,12 @@ void SmHdCtrl::OnRealProductQuote(CString& strKey, LONG& nRealType)
 	CString msg;
 	//msg.Format(_T("symbol = %s, time = %s, h=%s, l=%s, o=%s, c=%s, v=%s, ratio = %s\n"), strSymCode, strTime, strHigh, strLow, strOpen, strClose, strVolume, strRatioToPreDay);
 	//TRACE(msg);
+	}
+	catch (std::exception e)
+	{
+		std::string error = e.what();
+		LOG_F(INFO, "%s", error);
+	}
 }
 
 

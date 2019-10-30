@@ -98,6 +98,8 @@ void SmMarketManager::ReadDomesticSymbolsFromFile()
 		std::string file_path = dataPath + file_name;
 		symReader->ReadSymbolFromFile(index++, file_path);
 	}
+
+	AfxMessageBox("심볼로드 완료");
 }
 
 SmMarket* SmMarketManager::AddMarket(std::string name)
