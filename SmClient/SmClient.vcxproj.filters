@@ -289,6 +289,7 @@
     <ClInclude Include="SmProductYearMonth.h">
       <Filter>Market</Filter>
     </ClInclude>
+    <ClInclude Include="SmCallbackManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="HDCtrl\hdfcommagent.cpp">
@@ -423,6 +424,7 @@
     <ClCompile Include="SmProductYearMonth.cpp">
       <Filter>Market</Filter>
     </ClCompile>
+    <ClCompile Include="SmCallbackManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SmClient.rc">

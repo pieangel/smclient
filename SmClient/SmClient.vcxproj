@@ -222,6 +222,7 @@
     <ClInclude Include="Scheduler\ctpl_stl.h" />
     <ClInclude Include="Scheduler\InterruptableSleep.h" />
     <ClInclude Include="Scheduler\Scheduler.h" />
+    <ClInclude Include="SmCallbackManager.h" />
     <ClInclude Include="SmProduct.h" />
     <ClInclude Include="SmChartData.h" />
     <ClInclude Include="SmChartDataManager.h" />
@@ -298,6 +299,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="PropertiesWnd.cpp" />
+    <ClCompile Include="SmCallbackManager.cpp" />
     <ClCompile Include="SmProduct.cpp" />
     <ClCompile Include="SmChartData.cpp" />
     <ClCompile Include="SmChartDataManager.cpp" />

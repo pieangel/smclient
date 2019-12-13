@@ -18,6 +18,13 @@
 #include "SmMarketManager.h"
 #include "SmLogManager.h"
 #include "SmRealtimeSymbolServiceManager.h"
+#include "SmCallbackManager.h"
+#include <functional>
+#include "SmSymbol.h"
+#include "SmChartDataManager.h"
+
+using namespace std;
+using namespace std::placeholders;
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -53,6 +60,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWndEx)
 	ON_COMMAND(ID_SERVER_REGISTERSOCKET, &CMainFrame::OnServerRegistersocket)
 	ON_COMMAND(ID_SERVER_LOADCHARTDATAREQUEST, &CMainFrame::OnServerLoadchartdatarequest)
 	ON_COMMAND(ID_SERVER_GETSISE, &CMainFrame::OnServerGetsise)
+	ON_COMMAND(ID_SERVER_READDAILYDATA, &CMainFrame::OnServerReaddailydata)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -594,4 +602,26 @@ void CMainFrame::OnServerLoadchartdatarequest()
 void CMainFrame::OnServerGetsise()
 {
 	SmMarketManager::GetInstance()->requestRecentAllSise();
+
+	RegisterSymbolCallback();
+}
+
+void CMainFrame::RegisterSymbolCallback()
+{
+	SmCallbackManager::GetInstance()->SubscribeSymbolCallback((long)this, std::bind(&CMainFrame::OnUpdateSise, this, _1));
+}
+
+void CMainFrame::OnUpdateSise(const SmSymbol* symbol)
+{
+	if (!symbol)
+		return;
+
+	TRACE(symbol->SymbolCode().c_str());
+	TRACE("\n");
+}
+
+
+void CMainFrame::OnServerReaddailydata()
+{
+	SmChartDataManager::GetInstance()->ReadDailyChartData();
 }

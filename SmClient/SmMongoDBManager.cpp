@@ -552,47 +552,38 @@ void SmMongoDBManager::SaveChartDataItem(SmChartDataItem item)
 
 		std::string data_key = item.GetDataKey();
 
-		// 먼저 시장이 있는지 검색한다. 
-		// 그리고 시장 속에 상품이 있는지 검색한다.
-		mongocxx::collection chart_coll = db["chart_data"];
-
 		builder::stream::document builder{};
 
-		bsoncxx::stdx::optional<bsoncxx::document::value> found_chart_data =
-			chart_coll.find_one(bsoncxx::builder::stream::document{} << "data_key" << item.GetDataKey() << finalize);
-		// 차트 데이터가 없을 경우
-		if (found_chart_data) {
-			// 차트 데이터만 따로 저장한다.
-			mongocxx::collection data_coll = db[data_key];
-			std::string date_time = item.date + item.time;
-			bsoncxx::stdx::optional<bsoncxx::document::value> found_item = data_coll.find_one(bsoncxx::builder::stream::document{} << "date_time" << date_time << finalize);
-			// 같은 날짜가 없으면 새로 추가 한다.
-			if (!found_item) {
-				bsoncxx::document::value doc_chart_data_item = builder
-					<< "date_time" << date_time
-					<< "local_date" << item.date
-					<< "local_time" << item.time
-					<< "o" << item.o
-					<< "h" << item.h
-					<< "l" << item.l
-					<< "c" << item.c
-					<< "v" << item.v
-					<< bsoncxx::builder::stream::finalize;
-				auto res = db[data_key].insert_one(std::move(doc_chart_data_item));
-			}
-			else { // 같은 날짜가 있으면 업데이트 한다.
-				data_coll.update_one(bsoncxx::builder::stream::document{} << "date_time" << date_time << finalize,
-					bsoncxx::builder::stream::document{} << "$set"
-					<< open_document
-					<< "local_date" << item.date
-					<< "local_time" << item.time
-					<< "o" << item.o
-					<< "h" << item.h
-					<< "l" << item.l
-					<< "c" << item.c
-					<< "v" << item.v
-					<< close_document << finalize);
-			}
+		// 차트 데이터만 따로 저장한다.
+		mongocxx::collection data_coll = db[data_key];
+		std::string date_time = item.date + item.time;
+		bsoncxx::stdx::optional<bsoncxx::document::value> found_item = data_coll.find_one(bsoncxx::builder::stream::document{} << "date_time" << date_time << finalize);
+		// 같은 날짜가 없으면 새로 추가 한다.
+		if (!found_item) {
+			bsoncxx::document::value doc_chart_data_item = builder
+				<< "date_time" << date_time
+				<< "local_date" << item.date
+				<< "local_time" << item.time
+				<< "o" << item.o
+				<< "h" << item.h
+				<< "l" << item.l
+				<< "c" << item.c
+				<< "v" << item.v
+				<< bsoncxx::builder::stream::finalize;
+			auto res = db[data_key].insert_one(std::move(doc_chart_data_item));
+		}
+		else { // 같은 날짜가 있으면 업데이트 한다.
+			data_coll.update_one(bsoncxx::builder::stream::document{} << "date_time" << date_time << finalize,
+				bsoncxx::builder::stream::document{} << "$set"
+				<< open_document
+				<< "local_date" << item.date
+				<< "local_time" << item.time
+				<< "o" << item.o
+				<< "h" << item.h
+				<< "l" << item.l
+				<< "c" << item.c
+				<< "v" << item.v
+				<< close_document << finalize);
 		}
 	}
 	catch (std::exception e) {

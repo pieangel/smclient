@@ -32,7 +32,11 @@ public:
 	SmSymbol* GetRecentMonthSymbol();
 	SmProductYearMonth* GetRecentYearMonth();
 	SmProductYearMonth* GetNextYearMonth();
+	int Decimal() const { return _Decimal; }
+	void Decimal(int val) { _Decimal = val; }
 private:
+	// 소수점 자리수
+	int _Decimal = 0;
 	// 품목코드
 	std::string _Code;
 	// 품목 한글 이름

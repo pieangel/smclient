@@ -3,12 +3,18 @@
 #include "SmChartData.h"
 #include "SmUtil.h"
 #include <chrono>
+#include <sstream>
+#include <fstream>
+#include "SmConfigManager.h"
+#include "Log/loguru.hpp"
+#include "Util/VtStringUtil.h"
+#include "SmMongoDBManager.h"
 
 using namespace std::chrono;
 
 SmChartDataManager::SmChartDataManager()
 {
-
+	InitSymbolConvertMap();
 }
 
 SmChartDataManager::~SmChartDataManager()
@@ -106,6 +112,163 @@ void SmChartDataManager::RegisterTimer(SmChartData* chartData)
 	auto id = _Timer.add(seconds(waitTime), std::bind(&SmChartData::OnTimer, chartData), seconds(cycle_time));
 	// Add to the request map.
 	_CycleDataReqTimerMap[chartData->GetDataKey()] = id;
+}
+
+void SmChartDataManager::ReadDailyChartData()
+{
+	SmConfigManager* configMgr = SmConfigManager::GetInstance();
+
+	std::string appPath;
+	appPath = configMgr->GetApplicationPath();
+	appPath.append("\\");
+	appPath.append("chart_data");
+	appPath.append("\\");
+	std::string config_path = appPath;
+	std::map<std::string, std::string> file_list;
+	ListContents(file_list, config_path, "*.txt", false);
+	for (auto it = file_list.begin(); it != file_list.end(); ++it) {
+		std::string product_code = it->first;
+		std::string file_name = it->second;
+		std::ifstream infile(file_name);
+		std::string line;
+		while (std::getline(infile, line)) {
+			std::istringstream iss(line);
+			std::vector<std::string> split_result;
+			split_result = VtStringUtil::Split(line, ',');
+			if (split_result.size() > 0) {
+				int decimal = FindDecimal(split_result);
+				SmChartDataItem item;
+				item.chartType = SmChartType::DAY;
+				item.symbolCode = product_code;
+				item.cycle = 1;
+				item.date = split_result[1];
+				item.time = "090000";
+				std::string value = split_result[2];
+				item.o = std::stod(value) * std::pow(10, decimal);
+				value = split_result[3];
+				item.h = std::stod(value) * std::pow(10, decimal);
+				value = split_result[4];
+				item.l = std::stod(value) * std::pow(10, decimal);
+				value = split_result[5];
+				item.c = std::stod(value) * std::pow(10, decimal);
+				item.v = std::stoi(split_result[6]);
+				SmMongoDBManager::GetInstance()->SaveChartDataItem(item);
+			}
+		}
+	}
+}
+
+bool SmChartDataManager::ListContents(std::map<std::string, std::string>& dest, std::string dir, std::string filter, bool recursively)
+{
+	WIN32_FIND_DATAA ffd;
+	HANDLE hFind = INVALID_HANDLE_VALUE;
+	DWORD dwError = 0;
+
+	// Prepare string
+	//if (dir.back() != '\\') dir += "\\";
+
+	// Safety check
+	if (dir.length() >= MAX_PATH) {
+		LOG_F(INFO, "Cannot open folder %s: path too long", dir.c_str());
+		return false;
+	}
+
+	// First entry in directory
+	hFind = FindFirstFileA((dir + filter).c_str(), &ffd);
+
+	if (hFind == INVALID_HANDLE_VALUE) {
+		LOG_F(INFO, "Cannot open folder in folder %s: error accessing first entry.", dir.c_str());
+		return false;
+	}
+
+	// List files in directory
+	do {
+		// Ignore . and .. folders, they cause stack overflow
+		if (strcmp(ffd.cFileName, ".") == 0) continue;
+		if (strcmp(ffd.cFileName, "..") == 0) continue;
+
+
+		// Is directory?
+		if (ffd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{
+			// Go inside recursively
+			//if (recursively)
+			//	ListContents(dest, dir + ffd.cFileName, filter, recursively, content_type);
+			continue;
+		}
+		// Add file to our list
+		else {
+
+			SYSTEMTIME stLocal;
+
+			// Convert the last-write time to local time.
+			FileTimeToSystemTime(&ffd.ftLastWriteTime, &stLocal);
+			std::string local_time;
+			local_time += std::to_string(stLocal.wYear);
+			local_time += std::to_string(stLocal.wMonth);
+			local_time += std::to_string(stLocal.wDay);
+			std::string file_name = ffd.cFileName;
+			int pos = file_name.find("_");
+			if (pos > 0) {
+				std::string name = file_name.substr(0, pos);
+				auto it = _SymbolConvertMap.find(name);
+				if (it != _SymbolConvertMap.end()) {
+					name = it->second;
+				}
+				dest[name] = dir + ffd.cFileName;
+			}
+			else {
+				std::string name = file_name.substr(0, 3);
+				if (name.compare("000") == 0) {
+					name = "101";
+				}
+				dest[name] = dir + ffd.cFileName;
+			}
+		}
+
+	} while (FindNextFileA(hFind, &ffd));
+
+	// Get last error
+	dwError = GetLastError();
+	if (dwError != ERROR_NO_MORE_FILES) {
+		LOG_F(INFO, "Error reading file list in folder %s.", dir.c_str());
+		return false;
+	}
+
+	return true;
+}
+
+void SmChartDataManager::InitSymbolConvertMap()
+{
+	_SymbolConvertMap["FSMI"] = "SMI";
+	_SymbolConvertMap["FDX"] = "GX";
+	_SymbolConvertMap["FESX"] = "VG";
+	_SymbolConvertMap["HCEI"] = "HHI";
+	_SymbolConvertMap["SFC"] = "CN";
+	_SymbolConvertMap["SIN"] = "IN";
+	_SymbolConvertMap["SNK"] = "NK";
+	_SymbolConvertMap["STW"] = "TW";
+}
+
+int SmChartDataManager::FindDecimal(std::vector<std::string> vec)
+{
+	int decimal = 5;
+	int min_pos = 5;
+	for (int i = 2; i <= 5; i++) {
+		std::string value = vec[i];
+		int pos = 0;
+		for (int j = value.size() - 1; j >= 0; --j) {
+			char cur_char = value[j];
+			// 소수점이나 0이 아닌 문자가 나오면 루프에서 벗어난다.
+			if (cur_char == '.' || cur_char != '0')
+				break;
+			pos++;
+		}
+		if (pos < min_pos)
+			min_pos = pos;
+	}
+
+	return decimal - min_pos;
 }
 
 SmChartData* SmChartDataManager::FindChartData(std::string data_key)

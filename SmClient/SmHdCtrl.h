@@ -170,6 +170,7 @@ private:
 	/// </summary>
 	std::map<int, SmChartDataRequest> _ChartDataReqMap;
 	std::map<int, std::string> _SiseDataReqMap;
+	std::map<int, std::string> _FileReqMap;
 	std::queue< SmChartDataRequest> _ChartDataReqQueue;
 	bool _Requested = false;
 	std::mutex _mutex;

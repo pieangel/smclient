@@ -29,5 +29,6 @@ public:
 	static std::time_t GetEpochTime(const std::string& dateTime);
 	static long long GetCurrentNanoseconds();
 	static std::time_t GetUTCTimestampByDate();
+	static std::vector<std::string> Split(const std::string& s, char delimiter);
 };
 

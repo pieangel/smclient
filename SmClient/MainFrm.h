@@ -8,6 +8,7 @@
 #include "OutputWnd.h"
 #include "PropertiesWnd.h"
 class SmNetClient;
+class SmSymbol;
 class CMainFrame : public CMDIFrameWndEx
 {
 	DECLARE_DYNAMIC(CMainFrame)
@@ -78,6 +79,10 @@ public:
 	afx_msg void OnServerRegistersocket();
 	afx_msg void OnServerLoadchartdatarequest();
 	afx_msg void OnServerGetsise();
+public:
+	void RegisterSymbolCallback();
+	void OnUpdateSise(const SmSymbol* symbol);
+	afx_msg void OnServerReaddailydata();
 };
 
 

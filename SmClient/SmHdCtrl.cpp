@@ -29,6 +29,7 @@
 #include <mutex>
 #include "SmMarketManager.h"
 #include "SmSymbolReader.h"
+#include "SmCallbackManager.h"
 
 using namespace nlohmann;
 // VtHdCtrl dialog
@@ -241,6 +242,7 @@ void SmHdCtrl::DownloadDomesticMasterFile(std::string file_name)
 	CString sInput = file_name.c_str();
 	CString strNextKey = "";
 	int nRqID = m_CommAgent.CommRqData(sTrCode, sInput, sInput.GetLength(), strNextKey);
+	_FileReqMap[nRqID] = file_name;
 }
 
 void SmHdCtrl::DownloadDomesticMasterFiles()
@@ -822,6 +824,8 @@ void SmHdCtrl::OnRcvdAbroadSise(CString& strKey, LONG& nRealType)
 	SmSessionManager* sessMgr = SmSessionManager::GetInstance();
 	sessMgr->SendReqUpdateQuote(sym);
 
+	SmCallbackManager::GetInstance()->OnSymbolEvent(sym);
+
 	CString msg;
 	//msg.Format(_T("symbol = %s, time = %s, h=%s, l=%s, o=%s, c=%s, v=%s, ratio = %s\n"), strSymCode, strTime, strHigh, strLow, strOpen, strClose, strVolume, strRatioToPreDay);
 	//TRACE(msg);
@@ -905,6 +909,16 @@ void SmHdCtrl::OnRcvdDomesticChartData(CString& sTrCode, LONG& nRqID)
 			// 여기서 데이터 베이스를 업데이트 한다.
 			SmMongoDBManager::GetInstance()->SaveChartDataItem(data);
 		}
+
+		// 일간 데이터일 경우 데이터베이스에 저장을 해준다.
+		if (req.chartType == SmChartType::DAY) {
+			SmSymbol* symbol = SmSymbolManager::GetInstance()->FindSymbol(data.symbolCode);
+			if (symbol) {
+				data.symbolCode = symbol->ProductCode();
+				data.time = "090000";
+				SmMongoDBManager::GetInstance()->SaveChartDataItem(data);
+			}
+		}
 	}
 
 	LOG_F(INFO, "OnRcvdDomesticChartData %s", req.GetDataKey().c_str());
@@ -926,15 +940,6 @@ void SmHdCtrl::OnRcvdDomesticChartData(CString& sTrCode, LONG& nRqID)
 			// 차트 데이터 수신 완료를 알릴다.
 			SmTimeSeriesServiceManager* tsSvcMgr = SmTimeSeriesServiceManager::GetInstance();
 			tsSvcMgr->OnCompleteChartData(req, chart_data);
-
-			if (_SaveChartData) {
-				std::async(std::launch::async, [chart_vec] {
-					for (auto it = chart_vec.begin(); it != chart_vec.end(); ++it) {
-						SmChartDataItem item = *it;
-						SmMongoDBManager::GetInstance()->SaveChartDataItem(item);
-					}
-					});
-			}
 		}
 	}
 	}
@@ -1138,8 +1143,8 @@ void SmHdCtrl::OnRcvdAbroadChartData(CString& sTrCode, LONG& nRqID)
 		if (strDate.GetLength() == 0)
 			continue;
 		
-		//msg.Format(_T("OnRcvdAbroadChartData ::code = %s, index = %d, date = %s, t = %s, o = %s, h = %s, l = %s, c = %s, v = %s\n"), req.symbolCode.c_str(), i, strDate, strTime, strOpen, strHigh, strLow, strClose, strVol);
-		//TRACE(msg);
+		msg.Format(_T("OnRcvdAbroadChartData ::code = %s, index = %d, date = %s, t = %s, o = %s, h = %s, l = %s, c = %s, v = %s\n"), req.symbolCode.c_str(), i, strDate, strTime, strOpen, strHigh, strLow, strClose, strVol);
+		TRACE(msg);
 
 		SmChartDataItem data;
 		data.symbolCode = req.symbolCode;
@@ -1277,6 +1282,16 @@ void SmHdCtrl::OnRcvdAbroadChartData2(CString& sTrCode, LONG& nRqID)
 			// 여기서 데이터 베이스를 업데이트 한다.
 			SmMongoDBManager::GetInstance()->SaveChartDataItem(data);
 		}
+
+		// 일간 데이터일 경우 데이터베이스에 저장을 해준다.
+		if (req.chartType == SmChartType::DAY) {
+			SmSymbol* symbol = SmSymbolManager::GetInstance()->FindSymbol(data.symbolCode);
+			if (symbol) {
+				data.symbolCode = symbol->ProductCode();
+				data.time = "090000";
+				SmMongoDBManager::GetInstance()->SaveChartDataItem(data);
+			}
+		}
 	}
 
 	LOG_F(INFO, "OnRcvdAbroadChartData2 %s", req.GetDataKey().c_str());
@@ -1396,7 +1411,8 @@ void SmHdCtrl::OnDataRecv(CString sTrCode, LONG nRqID)
 
 			auto it = SmSymbolReader::GetInstance()->DomesticSymbolMasterFileSet.find((LPCTSTR)strFileNm);
 			if (it != SmSymbolReader::GetInstance()->DomesticSymbolMasterFileSet.end()) {
-				SmSymbolReader::GetInstance()->DomesticSymbolMasterFileSet.erase(it);
+				SmSymbolReader* symRdr = SmSymbolReader::GetInstance();
+				symRdr->DomesticSymbolMasterFileSet.erase(it);
 			}
 
 			_FileDownloading = false;
@@ -1974,8 +1990,19 @@ void SmHdCtrl::OnGetMsgWithRqId(int nRqId, CString strCode, CString strMsg)
 
 		LOG_F(INFO, "OnGetMsgWithRqId %s", msg);
 
+		// 파일 다운로드 요청을 검사한다.
+		auto it = _FileReqMap.find(nRqId);
+		if (it != _FileReqMap.end()) {
+			std::string file_name = it->second;
+			auto it = SmSymbolReader::GetInstance()->DomesticSymbolMasterFileSet.find(file_name);
+			if (it != SmSymbolReader::GetInstance()->DomesticSymbolMasterFileSet.end()) {
+				SmSymbolReader* symRdr = SmSymbolReader::GetInstance();
+				symRdr->DomesticSymbolMasterFileSet.erase(it);
+			}
+		}
+
 		if (strCode.CompareNoCase(_T("0332")) == 0) {
-			//AfxMessageBox(_T("종목 다운로드 완료"));
+			AfxMessageBox(_T("종목 다운로드 완료"));
 			SmMongoDBManager* mongo = SmMongoDBManager::GetInstance();
 			mongo->ReadSymbol();
 		}

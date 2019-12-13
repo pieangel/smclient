@@ -472,23 +472,23 @@ void SmSymbolReader::ReadJmFile(std::string fullPath)
 		//TRACE(msg);
 
 		SmSymbolManager* symMgr = SmSymbolManager::GetInstance();
-		SmProduct* cat = marketMgr->FindProduct(MrktCd);
-		if (cat) {
-			SmSymbol* sym = cat->AddSymbol(Series);
+		SmProduct* product = marketMgr->FindProduct(MrktCd);
+		if (product) {
+			SmSymbol* sym = product->AddSymbol(Series);
 			sym->Index(std::stoi(IndexCode));
 			sym->NearMonth(std::stoi(IndexCode));
 			sym->Name(SeriesNmKor);
 			sym->NameEn(SeriesNm);
 			symMgr->AddSymbol(sym);
-			sym->ProductCode(cat->Code());
-			sym->MarketName(cat->MarketName());
+			sym->ProductCode(product->Code());
+			sym->MarketName(product->MarketName());
 			sym->Decimal(std::stoi(Pdesz));
 			sym->Seungsu(std::stoi(MltiPler));
 			sym->CtrUnit(std::stod(CtrtSize));
 			sym->TickValue(std::stod(TickValue));
 			sym->TickSize(std::stod(TickSize));
 			sym->LastDate(last_date);
-
+			product->Decimal(std::stoi(Pdesz));
 			SmTimeSeriesDBManager* dbMgr = SmTimeSeriesDBManager::GetInstance();
 			//dbMgr->SaveSymbol(sym);
 
@@ -572,6 +572,7 @@ void SmSymbolReader::ReadKospiFutureFile(std::string fullPath)
 		sym->Seungsu(std::stoi(tradewin));
 		int hoga_unit = std::stoi(hounit);
 		int deci = std::stoi(deli);
+		product->Decimal(deci);
 		double tick_size = hoga_unit / std::pow(10, deci);
 		sym->TickSize(tick_size);
 		sym->CtrUnit(tick_size);
@@ -658,6 +659,7 @@ void SmSymbolReader::ReadKospiOptionFile(std::string fullPath)
 		sym->CtrUnit(tick_size);
 		double tick_value = std::stoi(tradewin) * tick_size;
 		sym->TickValue(tick_value);
+		product->Decimal(std::stoi(deli));
 	}
 }
 
@@ -739,6 +741,7 @@ void SmSymbolReader::ReadKospiWeeklyOptionFile(std::string fullPath)
 		sym->CtrUnit(tick_size);
 		double tick_value = std::stoi(tradewin) * tick_size;
 		sym->TickValue(tick_value);
+		product->Decimal(std::stoi(deli));
 	}
 }
 
@@ -895,6 +898,7 @@ void SmSymbolReader::ReadMiniKospiFutureFile(std::string fullPath)
 		sym->CtrUnit(tick_size);
 		double tick_value = std::stoi(tradewin) * tick_size;
 		sym->TickValue(tick_value);
+		product->Decimal(std::stoi(deli));
 	}
 }
 
@@ -973,6 +977,7 @@ void SmSymbolReader::ReadCommodityFutureFile(std::string fullPath)
 		sym->CtrUnit(tick_size);
 		double tick_value = std::stoi(tradewin) * tick_size;
 		sym->TickValue(tick_value);
+		product->Decimal(std::stoi(deli));
 	}
 }
 
